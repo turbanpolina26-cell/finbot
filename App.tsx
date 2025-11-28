@@ -357,13 +357,6 @@ const App: React.FC = () => {
   // --- Main App Render ---
   return (
     <div className="min-h-screen bg-tg-bg text-tg-text pb-28 font-sans selection:bg-tg-accent selection:text-white transition-colors duration-300">
-      {/* Debug Panel for mobile diagnostics */}
-      <div style={{position:'fixed',bottom:0,left:0,right:0,zIndex:9999,pointerEvents:'auto'}}>
-        <div style={{background:'rgba(0,0,0,0.85)',color:'#fff',fontSize:12,padding:'8px 12px',maxHeight:'40vh',overflowY:'auto',borderTop:'2px solid #6366f1',fontFamily:'monospace'}}>
-          <b>Debug Panel</b> (visible only for diagnostics)<br/>
-          {debugLogs.length === 0 ? <span>Нет событий</span> : debugLogs.map((l,i)=>(<div key={i}>{l}</div>))}
-        </div>
-      </div>
       {/* Header */}
       <header className="sticky top-0 z-20 glass border-b border-white/5 px-5 py-4 flex justify-between items-center transition-all duration-300">
         <div className="flex items-center gap-3">
