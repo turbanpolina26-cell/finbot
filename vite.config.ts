@@ -10,13 +10,28 @@ export default defineConfig(({ mode }) => {
         host: '0.0.0.0',
       },
       plugins: [react()],
-      define: {
-        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
-      },
       resolve: {
         alias: {
           '@': path.resolve(__dirname, '.'),
+        }
+      },
+      build: {
+        rollupOptions: {
+          output: {
+            manualChunks: {
+              'react-vendor': ['react', 'react-dom'],
+              'supabase-vendor': ['@supabase/supabase-js'],
+              'recharts-vendor': ['recharts'],
+            }
+          }
+        },
+        chunkSizeWarningLimit: 600,
+        target: 'esnext',
+        minify: 'terser',
+        terserOptions: {
+          compress: {
+            drop_console: true,
+          }
         }
       }
     };

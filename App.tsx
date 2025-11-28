@@ -1,12 +1,11 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Plus, LayoutDashboard, PieChart, Sparkles, X, Wallet, TrendingDown, TrendingUp, Lock, Palette, ChevronDown, Check, Database, Copy, RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import { Plus, LayoutDashboard, PieChart, X, Wallet, TrendingDown, TrendingUp, Palette, ChevronDown, Check, Database, Copy, RefreshCw, Wifi, WifiOff } from 'lucide-react';
 import { Transaction, TransactionType, Category, User, SavingsAccount } from './types';
 import { TransactionItem } from './components/TransactionItem';
 import { ChartsView } from './components/ChartsView';
 import { SavingsView } from './components/SavingsView';
-import { analyzeFinances } from './services/geminiService';
 import { supabase, fetchTransactions, addTransactionToDb, fetchSavings, addSavingToDb, deleteSavingFromDb } from './services/supabaseClient';
 
 // Updated Users
@@ -59,9 +58,6 @@ const App: React.FC = () => {
   // --- Authentication State ---
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [pinInput, setPinInput] = useState('');
-  const [authError, setAuthError] = useState('');
-  const [isSetupMode, setIsSetupMode] = useState(false);
 
   // --- App State ---
   const [activeTab, setActiveTab] = useState<'home' | 'stats' | 'savings'>('home');
@@ -84,10 +80,6 @@ const App: React.FC = () => {
   const [category, setCategory] = useState<Category>(Category.FOOD);
   const [type, setType] = useState<TransactionType>(TransactionType.EXPENSE);
 
-  // --- AI State ---
-  const [aiInsight, setAiInsight] = useState<string | null>(null);
-  const [isAiLoading, setIsAiLoading] = useState(false);
-
   // --- Initialization & Data Fetching ---
   useEffect(() => {
     // 1. Load Theme
@@ -105,11 +97,8 @@ const App: React.FC = () => {
       }
 
       const savedUser = localStorage.getItem('nura_user');
-      const storedPin = localStorage.getItem('nura_pin');
       
-      if (!storedPin) {
-        setIsSetupMode(true);
-      } else if (savedUser) {
+      if (savedUser) {
         setCurrentUser(JSON.parse(savedUser));
         setIsAuthenticated(true);
       }
@@ -182,47 +171,16 @@ const App: React.FC = () => {
   };
 
   // --- Handlers ---
-  const handlePinAction = () => {
-    const storedPin = localStorage.getItem('nura_pin');
-
-    if (isSetupMode) {
-      if (pinInput.length === 4) {
-        localStorage.setItem('nura_pin', pinInput);
-        setIsSetupMode(false);
-        // НЕ очищаем pinInput - пользователь может сразу выбрать себя
-        setAuthError('');
-        alert("Код доступа сохранен! Теперь выберите пользователя для входа.");
-      } else {
-        setAuthError('Введите 4 цифры');
-      }
-    }
-  };
-
-  const handleLogin = (user: User) => {
-    const storedPin = localStorage.getItem('nura_pin');
-    
-    if (!storedPin) {
-      setIsSetupMode(true);
-      return;
-    }
-
-    if (pinInput === storedPin) {
-      setCurrentUser(user);
-      setIsAuthenticated(true);
-      localStorage.setItem('nura_user', JSON.stringify(user));
-      setAuthError('');
-      setPinInput(''); // Очищаем после успешного входа
-    } else {
-      setAuthError('Неверный код доступа');
-      setPinInput('');
-    }
+  const handleSelectUser = (user: User) => {
+    setCurrentUser(user);
+    setIsAuthenticated(true);
+    localStorage.setItem('nura_user', JSON.stringify(user));
   };
 
   const handleLogout = () => {
     setIsAuthenticated(false);
     setCurrentUser(null);
     localStorage.removeItem('nura_user');
-    setPinInput('');
   };
   
   const handleAddTransaction = async () => {
@@ -259,14 +217,6 @@ const App: React.FC = () => {
     await deleteSavingFromDb(id);
     setTimeout(() => setIsSyncing(false), 500);
   };
-
-  const handleGetAiInsight = useCallback(async () => {
-    setIsAiLoading(true);
-    setAiInsight(null);
-    const result = await analyzeFinances(transactions);
-    setAiInsight(result);
-    setIsAiLoading(false);
-  }, [transactions]);
 
   const copySqlToClipboard = () => {
       navigator.clipboard.writeText(SETUP_SQL);
@@ -336,79 +286,21 @@ const App: React.FC = () => {
           </div>
           
           <div className="bg-tg-card/50 backdrop-blur-xl border border-white/5 rounded-3xl p-8 shadow-2xl">
-            <div className="flex justify-center mb-6">
-               <div className="bg-white/5 p-4 rounded-full border border-white/5">
-                 <Lock className="text-tg-accent" size={24} />
-               </div>
+            <h2 className="text-center font-bold text-xl mb-2">Выберите профиль</h2>
+            <p className="text-center text-sm text-tg-muted mb-8">Кто это?</p>
+            
+            <div className="grid grid-cols-2 gap-4">
+              {USERS.map(user => (
+                <button
+                  key={user.id}
+                  onClick={() => handleSelectUser(user)}
+                  className="bg-tg-bg hover:bg-white/10 active:scale-95 transition-all p-6 rounded-xl flex flex-col items-center gap-3 border border-white/10 group hover:border-tg-accent/30"
+                >
+                  <span className="text-3xl group-hover:scale-125 transition-transform">{user.avatar}</span>
+                  <span className="font-semibold text-sm text-tg-text group-hover:text-tg-accent">{user.name}</span>
+                </button>
+              ))}
             </div>
-            
-            {isSetupMode ? (
-               <>
-                 <h2 className="text-center font-bold text-lg mb-2">Придумайте код</h2>
-                 <p className="text-center text-sm text-tg-muted mb-6">Введите 4 цифры для защиты входа</p>
-               </>
-            ) : (
-                <p className="text-center text-sm text-tg-muted mb-6">Введите код доступа пары</p>
-            )}
-            
-            <input 
-              type="password" 
-              inputMode="numeric"
-              value={pinInput}
-              onChange={(e) => {
-                const newPin = e.target.value.replace(/[^0-9]/g, '').slice(0, 4);
-                setPinInput(newPin);
-                // Auto-submit in setup mode when 4 digits entered
-                if (isSetupMode && newPin.length === 4) {
-                  setTimeout(() => {
-                    localStorage.setItem('nura_pin', newPin);
-                    setIsSetupMode(false);
-                    // НЕ очищаем pinInput - пользователь может сразу выбрать себя
-                    setAuthError('');
-                    alert("Код доступа сохранен! Теперь выберите пользователя для входа.");
-                  }, 100);
-                }
-              }}
-              placeholder="••••"
-              maxLength={4}
-              autoFocus
-              className="w-full bg-tg-bg text-center text-3xl tracking-[1em] text-tg-text p-4 rounded-xl focus:outline-none focus:ring-1 focus:ring-tg-accent border border-white/5 mb-6 placeholder-white/10"
-            />
-            
-            {authError && <p className="text-red-400 text-xs text-center mb-4">{authError}</p>}
-
-            {isSetupMode ? (
-               <button 
-                 onClick={handlePinAction}
-                 disabled={pinInput.length !== 4}
-                 className="w-full bg-tg-accent text-white py-4 rounded-xl font-bold shadow-lg shadow-tg-accent/20 disabled:opacity-50 hidden"
-               >
-                 Сохранить код
-               </button>
-            ) : (
-              <div className="grid grid-cols-2 gap-3">
-                {USERS.map(user => (
-                  <button
-                    key={user.id}
-                    onClick={() => {
-                      handleLogin(user);
-                      setTimeout(() => setPinInput(''), 300);
-                    }}
-                    disabled={pinInput.length !== 4}
-                    className="bg-tg-bg hover:bg-white/5 disabled:opacity-30 active:scale-95 transition-all p-4 rounded-xl flex flex-col items-center gap-2 border border-white/5 group"
-                  >
-                    <span className="text-2xl group-hover:scale-110 transition-transform">{user.avatar}</span>
-                    <span className="font-medium text-sm">{user.name}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-            
-            {!isSetupMode && (
-                 <p onClick={() => { localStorage.removeItem('nura_pin'); setIsSetupMode(true); }} className="text-center text-[10px] text-tg-muted mt-6 cursor-pointer hover:text-tg-text">
-                   Забыли код? Сбросить
-                 </p>
-            )}
           </div>
         </div>
       </div>
@@ -487,34 +379,6 @@ const App: React.FC = () => {
                     </div>
                   </div>
                </div>
-            </div>
-
-            {/* AI Insight */}
-            <div className="bg-gradient-to-r from-tg-secondary to-tg-card p-5 rounded-3xl border border-white/5 relative overflow-hidden group">
-                <div className="absolute inset-0 bg-tg-accent/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <div className="flex justify-between items-start mb-3 relative z-10">
-                    <h3 className="font-bold flex items-center gap-2 text-tg-text">
-                        <Sparkles size={16} className="text-tg-accent" />
-                        AI Советник
-                    </h3>
-                    <button 
-                        onClick={handleGetAiInsight}
-                        disabled={isAiLoading}
-                        className="text-[11px] font-medium bg-tg-accent text-white px-3 py-1.5 rounded-full hover:brightness-110 active:scale-95 transition-all disabled:opacity-50 shadow-lg shadow-tg-accent/20"
-                    >
-                        {isAiLoading ? 'Думаю...' : 'Анализ'}
-                    </button>
-                </div>
-                
-                {aiInsight ? (
-                    <div className="text-sm leading-relaxed text-tg-text/90 bg-black/20 p-4 rounded-2xl border border-white/5 animate-fade-in">
-                        {aiInsight}
-                    </div>
-                ) : (
-                    <p className="text-xs text-tg-muted leading-relaxed relative z-10 max-w-[90%]">
-                       Я могу проанализировать ваши совместные расходы и подсказать, где можно сэкономить.
-                    </p>
-                )}
             </div>
 
             {/* Transactions List */}
