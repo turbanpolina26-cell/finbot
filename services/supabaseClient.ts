@@ -11,18 +11,43 @@ export const supabase = createClient(supabaseUrl, supabaseKey, {
       eventsPerSecond: 10,
     },
   },
+  global: {
+    headers: {
+      'X-Client-Info': 'finbot-web'
+    }
+  }
 });
+
+// Helper function for retries
+const retryAsync = async <T>(
+  fn: () => Promise<T>,
+  retries = 2,
+  delay = 1000
+): Promise<T> => {
+  try {
+    return await fn();
+  } catch (error) {
+    if (retries > 0) {
+      console.warn('[Supabase] Retrying after error:', error);
+      await new Promise(r => setTimeout(r, delay));
+      return retryAsync(fn, retries - 1, delay);
+    }
+    throw error;
+  }
+};
 
 // --- Transactions API ---
 
 export const fetchTransactions = async (): Promise<{ data: Transaction[] | null; error: any }> => {
   try {
     console.log('[Supabase] Fetching transactions...');
-    const { data, error } = await supabase
-      .from('transactions')
-      .select('*')
-      .order('date', { ascending: false })
-      .limit(100);
+    const { data, error } = await retryAsync(() =>
+      supabase
+        .from('transactions')
+        .select('*')
+        .order('date', { ascending: false })
+        .limit(100)
+    );
 
     if (error) {
       console.error('[Supabase] Error (Transactions):', error);
@@ -78,9 +103,11 @@ export const deleteTransactionFromDb = async (id: string) => {
 export const fetchSavings = async (): Promise<{ data: SavingsAccount[] | null; error: any }> => {
   try {
     console.log('[Supabase] Fetching savings...');
-    const { data, error } = await supabase
-      .from('savings')
-      .select('*');
+    const { data, error } = await retryAsync(() =>
+      supabase
+        .from('savings')
+        .select('*')
+    );
 
     if (error) {
       console.error('[Supabase] Error (Savings):', error);
