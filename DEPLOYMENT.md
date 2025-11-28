@@ -1,3 +1,7 @@
+# ⚠️ Cloudflare Worker Removed
+
+As of November 2025, all Cloudflare Worker code, config, and proxy logic have been fully removed from this project. All frontend/backend communication now uses direct Supabase REST calls. Ignore any old references to Cloudflare Worker in docs or code history.
+
 # 🚀 Deployment Guide - Netlify
 
 ## Prerequisite: Git Installation

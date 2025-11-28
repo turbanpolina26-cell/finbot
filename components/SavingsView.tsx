@@ -129,12 +129,6 @@ export const SavingsView: React.FC<Props> = ({ accounts, onAddAccount, onDeleteA
                 <Wallet className="text-tg-muted" size={20} />
                 Активные счета
             </h3>
-            <button 
-                onClick={() => setIsModalOpen(true)}
-                className="text-xs bg-tg-card border border-white/10 px-3 py-1.5 rounded-full flex items-center gap-1 hover:bg-white/5 transition-colors text-tg-text"
-            >
-                <Plus size={14} /> Добавить
-            </button>
         </div>
 
         <div className="space-y-3">
@@ -229,6 +223,11 @@ export const SavingsView: React.FC<Props> = ({ accounts, onAddAccount, onDeleteA
           </div>
         </div>
       )}
+
+      {/* Floating Action Button */}
+      <button className="add-btn fab" onClick={handleAdd} title="Добавить счет">
+        <span style={{fontSize: '2rem', lineHeight: 1, color: '#fff', display: 'inline-block', width: 40, height: 40, borderRadius: '50%', background: 'linear-gradient(135deg,#4caf50,#2196f3)', boxShadow: '0 4px 16px rgba(33,150,243,0.2)', textAlign: 'center'}}>+</span>
+      </button>
     </div>
   );
 };

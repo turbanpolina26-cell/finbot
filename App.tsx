@@ -6,7 +6,7 @@ import { Transaction, TransactionType, Category, User, SavingsAccount } from './
 import { TransactionItem } from './components/TransactionItem';
 import { ChartsView } from './components/ChartsView';
 import { SavingsView } from './components/SavingsView';
-import { supabase, fetchTransactions, addTransactionToDb, deleteTransactionFromDb, fetchSavings, addSavingToDb, deleteSavingFromDb } from './services/supabaseClient';
+import { fetchTransactions, addTransactionToDb, deleteTransactionFromDb, fetchSavings, addSavingToDb, deleteSavingFromDb } from './services/supabaseClient';
 
 // Updated Users
 const USERS: User[] = [
@@ -143,29 +143,13 @@ const App: React.FC = () => {
 
     loadDataWithTimeout();
 
-    // 4. Subscribe to Realtime Changes
-    const channel = supabase
-      .channel('table-db-changes')
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'transactions' },
-        (payload) => {
-          setIsSyncing(true);
-          loadData().then(() => setTimeout(() => setIsSyncing(false), 1000));
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'savings' },
-        (payload) => {
-          setIsSyncing(true);
-          loadData().then(() => setTimeout(() => setIsSyncing(false), 1000));
-        }
-      )
-      .subscribe();
+    // 4. Polling fallback (no realtime, REST-only)
+    const pollInterval = setInterval(() => {
+      loadData().catch(err => console.warn('Polling update failed:', err));
+    }, 10000); // Poll every 10 seconds
 
     return () => {
-      supabase.removeChannel(channel);
+      clearInterval(pollInterval);
     };
   }, []);
 

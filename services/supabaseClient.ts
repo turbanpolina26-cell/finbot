@@ -1,25 +1,20 @@
 import { Transaction, SavingsAccount, TransactionType, Category } from '../types';
 
-// Cloudflare Worker proxy URL (no direct Supabase WebSocket/Realtime)
-const WORKER_URL = 'https://finbot-proxy-worker.turbanpolina26.workers.dev';
+// Read runtime config from a global injected by index.html
+const runtimeConfig = (typeof window !== 'undefined' && (window as any).__FINBOT_SUPABASE) || {};
+const SUPABASE_URL = runtimeConfig.url || (import.meta.env.VITE_SUPABASE_URL as string) || '';
+const SUPABASE_KEY = runtimeConfig.key || (import.meta.env.VITE_SUPABASE_KEY as string) || '';
 
-// Lightweight stub client (no realtime init)
-export const supabase = {
-  from: (table: string) => ({
-    select: () => ({
-      order: () => ({ limit: async () => ({ data: [], error: null }) }),
-      limit: async () => ({ data: [], error: null })
-    }),
-    insert: async (data: any) => ({ error: null }),
-    delete: () => ({ eq: async () => ({ error: null }) })
-  }),
-  channel: () => {
-    const self = {
-      on: function() { return this; },
-      subscribe: async function() { return {}; }
-    };
-    return self;
-  }
+const makeHeaders = (extra: Record<string,string> = {}) => {
+  const h: Record<string,string> = {
+    'apikey': SUPABASE_KEY || '',
+    'Authorization': SUPABASE_KEY ? `Bearer ${SUPABASE_KEY}` : '',
+    'Accept': 'application/json'
+  };
+  Object.entries(extra).forEach(([k,v])=>{ if (v) h[k]=v; });
+  // Remove empty values to avoid invalid header errors
+  Object.keys(h).forEach(k=>{ if (!h[k]) delete h[k]; });
+  return h;
 };
 
 // Helper function for retries
@@ -62,18 +57,20 @@ const setCachedTransactions = (data: Transaction[]) => {
 
 export const fetchTransactions = async (): Promise<{ data: Transaction[] | null; error: any }> => {
   try {
-    console.log('[Worker] Fetching transactions...');
-    const res = await retryAsync(() =>
-      fetch(`${WORKER_URL}/api/transactions`)
-    );
+    if (!SUPABASE_URL) throw new Error('SUPABASE_URL not configured');
+    const url = new URL(`${SUPABASE_URL}/rest/v1/transactions`);
+    url.searchParams.set('select', '*');
+    url.searchParams.set('order', 'date.desc');
+
+    const res = await retryAsync(() => fetch(url.toString(), { headers: makeHeaders() }));
     const data = await res.json();
 
     if (!Array.isArray(data)) {
-      console.error('[Worker] Invalid response:', data);
+      console.error('[Supabase] Invalid response:', data);
       return { data: null, error: 'Invalid response' };
     }
 
-    console.log('[Worker] Transactions fetched:', data.length);
+    console.log('[Supabase] Transactions fetched:', data.length);
     const mappedData = data.map((item: any) => ({
       id: item.id,
       amount: item.amount,
@@ -86,7 +83,7 @@ export const fetchTransactions = async (): Promise<{ data: Transaction[] | null;
 
     return { data: mappedData, error: null };
   } catch (err) {
-    console.error('[Worker] Error fetching transactions:', err);
+    console.error('[Supabase] Error fetching transactions:', err);
     return { data: null, error: err };
   }
 };
@@ -132,9 +129,10 @@ export const stopPollingTransactions = () => {
 
 export const addTransactionToDb = async (transaction: Transaction) => {
   try {
-    const res = await fetch(`${WORKER_URL}/api/transactions`, {
+    if (!SUPABASE_URL) throw new Error('SUPABASE_URL not configured');
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/transactions`, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
+      headers: Object.assign({ 'Content-Type': 'application/json', 'Prefer': 'return=representation' }, makeHeaders()),
       body: JSON.stringify({
         amount: transaction.amount,
         type: transaction.type,
@@ -145,28 +143,29 @@ export const addTransactionToDb = async (transaction: Transaction) => {
       })
     });
     const result = await res.json();
-    if (!res.ok) console.error('[Worker] Error adding transaction:', result);
+    if (!res.ok) console.error('[Supabase] Error adding transaction:', result);
     return result;
   } catch (err) {
-    console.error('[Worker] Error adding transaction:', err);
+    console.error('[Supabase] Error adding transaction:', err);
     return { error: err };
   }
 };
 
 export const deleteTransactionFromDb = async (id: string) => {
   try {
-    console.log('[Worker] Deleting transaction:', id);
-    const res = await fetch(`${WORKER_URL}/api/deleteTransaction`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: id
+    if (!SUPABASE_URL) throw new Error('SUPABASE_URL not configured');
+    const url = new URL(`${SUPABASE_URL}/rest/v1/transactions`);
+    url.searchParams.set('id', `eq.${id}`);
+    const res = await fetch(url.toString(), {
+      method: 'DELETE',
+      headers: Object.assign({ 'Prefer': 'return=representation' }, makeHeaders())
     });
-    const result = await res.json();
-    if (res.ok) console.log('[Worker] Transaction deleted successfully');
-    else console.error('[Worker] Error deleting transaction:', result);
+    const result = res.ok ? { success: true } : await res.json();
+    if (res.ok) console.log('[Supabase] Transaction deleted successfully');
+    else console.error('[Supabase] Error deleting transaction:', result);
     return result;
   } catch (err) {
-    console.error('[Worker] Error deleting transaction:', err);
+    console.error('[Supabase] Error deleting transaction:', err);
     return { error: err };
   }
 };
@@ -175,18 +174,18 @@ export const deleteTransactionFromDb = async (id: string) => {
 
 export const fetchSavings = async (): Promise<{ data: SavingsAccount[] | null; error: any }> => {
   try {
-    console.log('[Worker] Fetching savings...');
-    const res = await retryAsync(() =>
-      fetch(`${WORKER_URL}/api/savings`)
-    );
+    if (!SUPABASE_URL) throw new Error('SUPABASE_URL not configured');
+    const url = new URL(`${SUPABASE_URL}/rest/v1/savings`);
+    url.searchParams.set('select', '*');
+    const res = await retryAsync(() => fetch(url.toString(), { headers: makeHeaders() }));
     const data = await res.json();
 
     if (!Array.isArray(data)) {
-      console.error('[Worker] Invalid savings response:', data);
+      console.error('[Supabase] Invalid savings response:', data);
       return { data: null, error: 'Invalid response' };
     }
 
-    console.log('[Worker] Savings fetched:', data.length);
+    console.log('[Supabase] Savings fetched:', data.length);
     const mappedData = data.map((item: any) => ({
       id: item.id,
       name: item.name,
@@ -197,16 +196,17 @@ export const fetchSavings = async (): Promise<{ data: SavingsAccount[] | null; e
 
     return { data: mappedData, error: null };
   } catch (err) {
-    console.error('[Worker] Error fetching savings:', err);
+    console.error('[Supabase] Error fetching savings:', err);
     return { data: null, error: err };
   }
 };
 
 export const addSavingToDb = async (account: SavingsAccount) => {
   try {
-    const res = await fetch(`${WORKER_URL}/api/savings`, {
+    if (!SUPABASE_URL) throw new Error('SUPABASE_URL not configured');
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/savings`, {
       method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
+      headers: Object.assign({ 'Content-Type': 'application/json', 'Prefer': 'return=representation' }, makeHeaders()),
       body: JSON.stringify({
         name: account.name,
         amount: account.amount,
@@ -215,27 +215,29 @@ export const addSavingToDb = async (account: SavingsAccount) => {
       })
     });
     const result = await res.json();
-    if (!res.ok) console.error('[Worker] Error adding saving:', result);
+    if (!res.ok) console.error('[Supabase] Error adding saving:', result);
     return result;
   } catch (err) {
-    console.error('[Worker] Error adding saving:', err);
+    console.error('[Supabase] Error adding saving:', err);
     return { error: err };
   }
 };
 
 export const deleteSavingFromDb = async (id: string) => {
   try {
-    const res = await fetch(`${WORKER_URL}/api/deleteSaving`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'text/plain' },
-      body: id
+    if (!SUPABASE_URL) throw new Error('SUPABASE_URL not configured');
+    const url = new URL(`${SUPABASE_URL}/rest/v1/savings`);
+    url.searchParams.set('id', `eq.${id}`);
+    const res = await fetch(url.toString(), {
+      method: 'DELETE',
+      headers: Object.assign({ 'Prefer': 'return=representation' }, makeHeaders())
     });
-    const result = await res.json();
-    if (res.ok) console.log('[Worker] Saving deleted successfully');
-    else console.error('[Worker] Error deleting saving:', result);
+    const result = res.ok ? { success: true } : await res.json();
+    if (res.ok) console.log('[Supabase] Saving deleted successfully');
+    else console.error('[Supabase] Error deleting saving:', result);
     return result;
   } catch (err) {
-    console.error('[Worker] Error deleting saving:', err);
+    console.error('[Supabase] Error deleting saving:', err);
     return { error: err };
   }
 };

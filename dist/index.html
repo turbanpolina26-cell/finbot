@@ -7,8 +7,14 @@
     <!-- Favicon fix -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦁</text></svg>">
     
-    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <!-- Minimal runtime config injected from local .env (quick hack) -->
+    <script>
+      window.__FINBOT_SUPABASE = {
+        url: 'https://wdoymosbqdlqqzujgmax.supabase.co',
+        key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indkb3ltb3NicWRscXF6dWpnbWF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyODMzMzQsImV4cCI6MjA3OTg1OTMzNH0.geEk2wzKj_jd4G7q1-O5-N-LKq9AztYVCjDWxm82vzo'
+      };
+    </script>
     <script>
       tailwind.config = {
         darkMode: 'class',
@@ -121,7 +127,8 @@
         border-top: 1px solid rgba(255, 255, 255, 0.1);
       }
     </style>
-
+
+
 <style>
   #root { min-height: 100vh; }
   .loader { 
@@ -147,18 +154,18 @@
     "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
     "react/": "https://aistudiocdn.com/react@^19.2.0/",
     "react": "https://aistudiocdn.com/react@^19.2.0",
-    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
-    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.39.7"
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0"
   }
 }
 </script>
-  <script type="module" crossorigin src="/assets/index-0UNzTjqO.js"></script>
+  <script type="module" crossorigin src="/assets/index-cRQgz3H3.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/react-vendor-B_uAldPx.js">
   <link rel="modulepreload" crossorigin href="/assets/recharts-vendor-lZPSnjVB.js">
-  <link rel="stylesheet" crossorigin href="/assets/index-Dmbw2QUS.css">
+  <link rel="stylesheet" crossorigin href="/assets/index-CxjBcYzj.css">
 </head>
   <body>
     <div id="root"></div>
-    <div class="loader"></div>
+    <div class="loader"></div>
+
 </body>
 </html>

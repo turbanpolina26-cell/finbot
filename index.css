@@ -50,3 +50,15 @@ html {
   --tg-accent: #4caf50;
   --tg-green: #66bb6a;
 }
+
+.add-btn.fab {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  background: transparent;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  cursor: pointer;
+  z-index: 1000;
+}
