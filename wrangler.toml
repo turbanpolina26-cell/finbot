@@ -1,0 +1,9 @@
+name = "finbot-proxy-worker"
+compatibility_date = "2025-11-28"
+main = "cloudflare/worker.js"
+account_id = "6aa7ec2f92e7bd60c0be90113cb2e6ca"
+
+# Environment variables for Supabase
+[env.production]
+vars = { SUPABASE_REST_HOST = "wdoymosbqdlqqzujgmax.supabase.co" }
+# Use 'wrangler secret put SUPABASE_KEY' to set the secret safely

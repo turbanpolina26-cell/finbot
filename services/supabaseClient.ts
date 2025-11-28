@@ -13,9 +13,13 @@ export const supabase = {
     insert: async (data: any) => ({ error: null }),
     delete: () => ({ eq: async () => ({ error: null }) })
   }),
-  channel: () => ({
-    on: () => ({ subscribe: async () => ({}) })
-  })
+  channel: () => {
+    const self = {
+      on: function() { return this; },
+      subscribe: async function() { return {}; }
+    };
+    return self;
+  }
 };
 
 // Helper function for retries
