@@ -5,12 +5,19 @@ import { Transaction, SavingsAccount, TransactionType, Category } from '../types
 const supabaseUrl = 'https://wdoymosbqdlqqzujgmax.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indkb3ltb3NicWRscXF6dWpnbWF4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQyODMzMzQsImV4cCI6MjA3OTg1OTMzNH0.geEk2wzKj_jd4G7q1-O5-N-LKq9AztYVCjDWxm82vzo';
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  realtime: {
+    params: {
+      eventsPerSecond: 10,
+    },
+  },
+});
 
 // --- Transactions API ---
 
 export const fetchTransactions = async (): Promise<{ data: Transaction[] | null; error: any }> => {
   try {
+    console.log('[Supabase] Fetching transactions...');
     const { data, error } = await supabase
       .from('transactions')
       .select('*')
@@ -18,10 +25,11 @@ export const fetchTransactions = async (): Promise<{ data: Transaction[] | null;
       .limit(100);
 
     if (error) {
-      console.error('Supabase Error (Transactions):', error);
+      console.error('[Supabase] Error (Transactions):', error);
       return { data: null, error };
     }
 
+    console.log('[Supabase] Transactions fetched:', data?.length || 0);
     const mappedData = data ? data.map((item: any) => ({
       id: item.id,
       amount: item.amount,
@@ -34,7 +42,7 @@ export const fetchTransactions = async (): Promise<{ data: Transaction[] | null;
 
     return { data: mappedData, error: null };
   } catch (err) {
-    console.error('Unexpected error fetching transactions:', err);
+    console.error('[Supabase] Unexpected error fetching transactions:', err);
     return { data: null, error: err };
   }
 };
@@ -54,19 +62,32 @@ export const addTransactionToDb = async (transaction: Transaction) => {
   if (error) console.error('Error adding transaction:', error);
 };
 
+export const deleteTransactionFromDb = async (id: string) => {
+  console.log('[Supabase] Deleting transaction:', id);
+  const { error } = await supabase
+    .from('transactions')
+    .delete()
+    .eq('id', id);
+
+  if (error) console.error('[Supabase] Error deleting transaction:', error);
+  else console.log('[Supabase] Transaction deleted successfully');
+};
+
 // --- Savings API ---
 
 export const fetchSavings = async (): Promise<{ data: SavingsAccount[] | null; error: any }> => {
   try {
+    console.log('[Supabase] Fetching savings...');
     const { data, error } = await supabase
       .from('savings')
       .select('*');
 
     if (error) {
-      console.error('Supabase Error (Savings):', error);
+      console.error('[Supabase] Error (Savings):', error);
       return { data: null, error };
     }
 
+    console.log('[Supabase] Savings fetched:', data?.length || 0);
     const mappedData = data ? data.map((item: any) => ({
       id: item.id,
       name: item.name,

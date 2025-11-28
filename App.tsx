@@ -6,7 +6,7 @@ import { Transaction, TransactionType, Category, User, SavingsAccount } from './
 import { TransactionItem } from './components/TransactionItem';
 import { ChartsView } from './components/ChartsView';
 import { SavingsView } from './components/SavingsView';
-import { supabase, fetchTransactions, addTransactionToDb, fetchSavings, addSavingToDb, deleteSavingFromDb } from './services/supabaseClient';
+import { supabase, fetchTransactions, addTransactionToDb, deleteTransactionFromDb, fetchSavings, addSavingToDb, deleteSavingFromDb } from './services/supabaseClient';
 
 // Updated Users
 const USERS: User[] = [
@@ -88,15 +88,17 @@ const App: React.FC = () => {
 
     // 2. Load Auth/User
     const initApp = async () => {
+      console.log('[App] Initializing app...');
       // Try to get Telegram WebApp Data
       const tg = (window as any).Telegram?.WebApp;
       if (tg) {
         tg.ready();
         tg.expand();
-        // Here you could parse tg.initDataUnsafe to auto-login
+        console.log('[App] Telegram WebApp ready');
       }
 
       const savedUser = localStorage.getItem('nura_user');
+      console.log('[App] Saved user:', savedUser ? 'found' : 'not found');
       
       if (savedUser) {
         setCurrentUser(JSON.parse(savedUser));
@@ -106,8 +108,23 @@ const App: React.FC = () => {
 
     initApp();
 
-    // 3. Fetch Data from Supabase
-    loadData();
+    // 3. Fetch Data from Supabase with timeout
+    const loadDataWithTimeout = async () => {
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error('Supabase request timeout')), 15000)
+      );
+      
+      try {
+        console.log('[App] Starting data load...');
+        await Promise.race([loadData(), timeoutPromise]);
+        console.log('[App] Data loaded successfully');
+      } catch (error) {
+        console.error('[App] Data load error:', error);
+        // Don't block UI - continue with empty data
+      }
+    };
+
+    loadDataWithTimeout();
 
     // 4. Subscribe to Realtime Changes
     const channel = supabase
@@ -145,29 +162,36 @@ const App: React.FC = () => {
     // Reset DB Error state before trying
     setDbError(false);
 
-    const { data: txs, error: txError } = await fetchTransactions();
-    if (txError) {
-        // PGRST205 means table not found
-        if (txError.code === 'PGRST205' || txError.message?.includes('does not exist')) {
-            setDbError(true);
-            setIsSyncing(false);
-            return;
-        }
-    } else {
-        setTransactions(txs || []);
-    }
+    try {
+      const { data: txs, error: txError } = await fetchTransactions();
+      if (txError) {
+          console.warn('Transaction fetch error:', txError);
+          // PGRST205 means table not found
+          if (txError.code === 'PGRST205' || txError.message?.includes('does not exist')) {
+              setDbError(true);
+              setIsSyncing(false);
+              return;
+          }
+      } else {
+          setTransactions(txs || []);
+      }
 
-    const { data: svs, error: svError } = await fetchSavings();
-    if (svError) {
-        if (svError.code === 'PGRST205' || svError.message?.includes('does not exist')) {
-            setDbError(true);
-            setIsSyncing(false);
-            return;
-        }
-    } else {
-        setSavingsAccounts(svs || []);
+      const { data: svs, error: svError } = await fetchSavings();
+      if (svError) {
+          console.warn('Savings fetch error:', svError);
+          if (svError.code === 'PGRST205' || svError.message?.includes('does not exist')) {
+              setDbError(true);
+              setIsSyncing(false);
+              return;
+          }
+      } else {
+          setSavingsAccounts(svs || []);
+      }
+    } catch (error) {
+      console.error('Error loading data:', error);
+    } finally {
+      setIsSyncing(false);
     }
-    setIsSyncing(false);
   };
 
   // --- Handlers ---
@@ -209,6 +233,12 @@ const App: React.FC = () => {
   const handleAddSavingsAccount = async (account: SavingsAccount) => {
     setIsSyncing(true);
     await addSavingToDb(account);
+    setTimeout(() => setIsSyncing(false), 500);
+  };
+
+  const handleDeleteTransaction = async (id: string) => {
+    setIsSyncing(true);
+    await deleteTransactionFromDb(id);
     setTimeout(() => setIsSyncing(false), 500);
   };
 
@@ -394,7 +424,7 @@ const App: React.FC = () => {
                 ) : (
                     transactions.map(t => {
                         const author = USERS.find(u => u.id === t.authorId);
-                        return <TransactionItem key={t.id} transaction={t} user={author} />;
+                        return <TransactionItem key={t.id} transaction={t} user={author} onDelete={handleDeleteTransaction} />;
                     })
                 )}
               </div>
