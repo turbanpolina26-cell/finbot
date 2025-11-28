@@ -58,6 +58,16 @@ const App: React.FC = () => {
   // --- Authentication State ---
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
+  // --- Debug / Mobile diagnostics ---
+  const [debugLogs, setDebugLogs] = useState<string[]>([]);
+  const addDebug = (msg: string) => {
+    try {
+      setDebugLogs((s) => [new Date().toLocaleTimeString() + ' - ' + msg, ...s].slice(0, 12));
+    } catch (e) {
+      // ignore
+    }
+    console.log('[Debug]', msg);
+  };
 
   // --- App State ---
   const [activeTab, setActiveTab] = useState<'home' | 'stats' | 'savings'>('home');
@@ -89,16 +99,20 @@ const App: React.FC = () => {
     // 2. Load Auth/User
     const initApp = async () => {
       console.log('[App] Initializing app...');
+      addDebug('Initializing app');
       // Try to get Telegram WebApp Data
       const tg = (window as any).Telegram?.WebApp;
       if (tg) {
-        tg.ready();
-        tg.expand();
+        try { tg.ready(); tg.expand(); } catch(e){}
         console.log('[App] Telegram WebApp ready');
+        addDebug('Telegram WebApp present');
+      } else {
+        addDebug('Telegram WebApp not detected');
       }
 
       const savedUser = localStorage.getItem('nura_user');
       console.log('[App] Saved user:', savedUser ? 'found' : 'not found');
+      addDebug(savedUser ? 'Saved user found' : 'No saved user');
       
       if (savedUser) {
         setCurrentUser(JSON.parse(savedUser));
@@ -116,10 +130,13 @@ const App: React.FC = () => {
       
       try {
         console.log('[App] Starting data load...');
+        addDebug('Starting data load');
         await Promise.race([loadData(), timeoutPromise]);
         console.log('[App] Data loaded successfully');
-      } catch (error) {
+        addDebug('Data loaded successfully');
+      } catch (error: any) {
         console.error('[App] Data load error:', error);
+        addDebug('Data load error: ' + (error?.message || String(error)));
         // Don't block UI - continue with empty data
       }
     };
@@ -340,6 +357,13 @@ const App: React.FC = () => {
   // --- Main App Render ---
   return (
     <div className="min-h-screen bg-tg-bg text-tg-text pb-28 font-sans selection:bg-tg-accent selection:text-white transition-colors duration-300">
+      {/* Debug Panel for mobile diagnostics */}
+      <div style={{position:'fixed',bottom:0,left:0,right:0,zIndex:9999,pointerEvents:'auto'}}>
+        <div style={{background:'rgba(0,0,0,0.85)',color:'#fff',fontSize:12,padding:'8px 12px',maxHeight:'40vh',overflowY:'auto',borderTop:'2px solid #6366f1',fontFamily:'monospace'}}>
+          <b>Debug Panel</b> (visible only for diagnostics)<br/>
+          {debugLogs.length === 0 ? <span>Нет событий</span> : debugLogs.map((l,i)=>(<div key={i}>{l}</div>))}
+        </div>
+      </div>
       {/* Header */}
       <header className="sticky top-0 z-20 glass border-b border-white/5 px-5 py-4 flex justify-between items-center transition-all duration-300">
         <div className="flex items-center gap-3">
