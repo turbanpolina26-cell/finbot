@@ -1,0 +1,16 @@
+# Netlify Configuration for Nura Finance
+
+[build]
+  command = "npm run build"
+  functions = "backend"
+  publish = "dist"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Environment variables (set these in Netlify dashboard)
+# VITE_GEMINI_API_KEY=your_key_here
+# VITE_SUPABASE_URL=your_url_here
+# VITE_SUPABASE_KEY=your_key_here
