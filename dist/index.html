@@ -7,7 +7,47 @@
     <!-- Favicon fix -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦁</text></svg>">
     
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'system-ui', 'sans-serif'],
+            },
+            colors: {
+              tg: {
+                bg: 'var(--tg-bg)',
+                card: 'var(--tg-card)',
+                secondary: 'var(--tg-secondary)',
+                text: 'var(--tg-text)',
+                muted: 'var(--tg-muted)',
+                accent: 'var(--tg-accent)',
+                gold: 'var(--tg-gold)',
+                red: '#ff5c5c',
+                green: '#4cd964'
+              }
+            },
+            animation: {
+              'fade-in': 'fadeIn 0.3s ease-out',
+              'slide-up': 'slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
+            },
+            keyframes: {
+              fadeIn: {
+                '0%': { opacity: '0' },
+                '100%': { opacity: '1' },
+              },
+              slideUp: {
+                '0%': { transform: 'translateY(20px)', opacity: '0' },
+                '100%': { transform: 'translateY(0)', opacity: '1' },
+              }
+            }
+          }
+        }
+      }
+    </script>
     <style>
       :root {
         /* Default Theme: Obsidian (Luxury Dark) */
@@ -81,8 +121,7 @@
         border-top: 1px solid rgba(255, 255, 255, 0.1);
       }
     </style>
-
-
+
 <style>
   #root { min-height: 100vh; }
   .loader { 
@@ -113,15 +152,13 @@
   }
 }
 </script>
-  <script type="module" crossorigin src="/assets/index-Bq05LCr_.js"></script>
+  <script type="module" crossorigin src="/assets/index-QjFujB8M.js"></script>
   <link rel="modulepreload" crossorigin href="/assets/react-vendor-B_uAldPx.js">
   <link rel="modulepreload" crossorigin href="/assets/recharts-vendor-lZPSnjVB.js">
-  <link rel="modulepreload" crossorigin href="/assets/supabase-vendor-DNRp7i7V.js">
   <link rel="stylesheet" crossorigin href="/assets/index-Dmbw2QUS.css">
 </head>
   <body>
     <div id="root"></div>
-    <div class="loader"></div>
-
+    <div class="loader"></div>
 </body>
 </html>
