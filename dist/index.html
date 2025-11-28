@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Nura Finance</title>
+    <!-- Favicon fix -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦁</text></svg>">
+    
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+      :root {
+        /* Default Theme: Obsidian (Luxury Dark) */
+        --tg-bg: #0f1014;
+        --tg-card: #1c1e26;
+        --tg-secondary: #252836;
+        --tg-text: #f5f5f7;
+        --tg-muted: #8b9bb4;
+        --tg-accent: #6366f1; /* Indigo */
+        --tg-gold: #d4af37;
+      }
+
+      [data-theme='cotton-candy'] {
+        /* Cotton Candy Theme (Pink/Blue/Purple) */
+        --tg-bg: #130f26; /* Deep Purple */
+        --tg-card: #231b36; /* Lighter Purple */
+        --tg-secondary: #2e2448;
+        --tg-text: #ffffff;
+        --tg-muted: #a69bc9;
+        --tg-accent: #ff6ad5; /* Hot Pink */
+        --tg-gold: #00e5ff; /* Cyan for "Savings" in this theme */
+      }
+      
+      [data-theme='aurora'] {
+        /* Aurora Theme (Light Glass) */
+        --tg-bg: #f0f2f5;
+        --tg-card: #ffffff;
+        --tg-secondary: #e4e6eb;
+        --tg-text: #1a1a1a;
+        --tg-muted: #65676b;
+        --tg-accent: #2d88ff;
+        --tg-gold: #e6b800;
+      }
+
+      [data-theme='forest'] {
+        /* Forest Theme (Nature) */
+        --tg-bg: #0d1f12;
+        --tg-card: #1a2f21;
+        --tg-secondary: #253d2d;
+        --tg-text: #e0e7e1;
+        --tg-muted: #8ba391;
+        --tg-accent: #4ade80;
+        --tg-gold: #fbbf24;
+      }
+
+      body {
+        background-color: var(--tg-bg);
+        color: var(--tg-text);
+        font-family: 'Inter', sans-serif;
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
+      /* Hide scrollbar for clean mobile look */
+      ::-webkit-scrollbar {
+        width: 0px;
+        background: transparent;
+      }
+      
+      .glass {
+        background: rgba(var(--tg-card), 0.7); /* Fallback */
+        background: color-mix(in srgb, var(--tg-card), transparent 30%);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      
+      .glass-high {
+        background: color-mix(in srgb, var(--tg-secondary), transparent 20%);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+      }
+    </style>
+
+<style>
+  #root { min-height: 100vh; }
+  .loader { 
+    position: fixed; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    width: 50px; 
+    height: 50px; 
+    border: 4px solid rgba(255, 255, 255, 0.1); 
+    border-top-color: #31a24c; 
+    border-radius: 50%; 
+    animation: spin 1s linear infinite; 
+    z-index: 9999; 
+  }
+  @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+  #root:not(:empty) ~ .loader { display: none; }
+</style>
+  <script type="importmap">
+{
+  "imports": {
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "recharts": "https://aistudiocdn.com/recharts@^3.5.1",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.555.0",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.39.7"
+  }
+}
+</script>
+  <script type="module" crossorigin src="/assets/index-4Da1ct9Y.js"></script>
+  <link rel="modulepreload" crossorigin href="/assets/react-vendor-B_uAldPx.js">
+  <link rel="modulepreload" crossorigin href="/assets/recharts-vendor-lZPSnjVB.js">
+  <link rel="modulepreload" crossorigin href="/assets/supabase-vendor-DNRp7i7V.js">
+  <link rel="stylesheet" crossorigin href="/assets/index-Dmbw2QUS.css">
+</head>
+  <body>
+    <div id="root"></div>
+    <div class="loader"></div>
+</body>
+</html>
+
+<!-- Mobile fixes: hide debug panel and make add forms bottom-fixed and keyboard-friendly -->
+<style>
+  /* Hide any debug panel / dev overlays if present */
+  .debug-panel, #debug-panel, .devtools, .debugOverlay, *[class*="debug"], *[id*="debug"], *[class*="devtools"], .dev-panel { display: none !important; visibility: hidden !important; height: 0 !important; overflow: hidden !important; }
+
+  /* Ensure body height adapts to mobile virtual keyboard using --vh */
+  :root { --vh: 1vh; }
+
+  /* Generic bottom sheet / add-form styles to improve mobile usability */
+  .add-panel, .add-form, #add-transaction, .transaction-form, .modal, .sheet {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    margin: 0 !important;
+    box-shadow: 0 -12px 30px rgba(0,0,0,0.4) !important;
+    border-top-left-radius: 12px !important;
+    border-top-right-radius: 12px !important;
+    max-height: calc(var(--vh, 1vh) * 70) !important; /* keep form <= 70% of viewport */
+    overflow: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    padding: 12px 16px 24px 16px !important;
+    background: var(--tg-card) !important;
+    z-index: 9999 !important;
+  }
+
+  /* Make inputs and buttons more compact inside add forms */
+  .add-panel input, .add-panel textarea, .add-panel select,
+  .add-form input, .add-form textarea, .add-form select,
+  .transaction-form input, .transaction-form textarea, .transaction-form select {
+    font-size: 16px !important;
+    padding: 10px !important;
+    margin: 6px 0 !important;
+  }
+
+  /* Ensure the root container uses the --vh sizing to avoid 100vh jumps */
+  #root { min-height: calc(var(--vh, 1vh) * 100); }
+</style>
+
+<script>
+  // Set --vh custom property to avoid 100vh problems on mobile browsers
+  function setVh() {
+    try {
+      var vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', vh + 'px');
+    } catch (e) {
+      // ignore
+    }
+  }
+  setVh();
+  window.addEventListener('resize', setVh);
+
+  // If visualViewport API exists, adjust on visual viewport changes (keyboard open)
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', function () {
+      setVh();
+      // when keyboard opens, ensure focused input is visible
+      const active = document.activeElement;
+      if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable)) {
+        setTimeout(() => {
+          active.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        }, 50);
+      }
+    });
+  }
+</script>
+
+<style>
+  /* Bottom-sheet enhancements */
+  .sheet-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 9997; opacity: 0; transition: opacity 220ms ease; }
+  .sheet-backdrop.visible { opacity: 1; }
+  .sheet { will-change: transform; transition: transform 220ms cubic-bezier(.22,.98,.36,1); touch-action: none; }
+  .sheet-header { height: 36px; display:flex; align-items:center; justify-content:center; cursor:grab; }
+  .sheet-handle { width: 44px; height: 6px; border-radius: 6px; background: rgba(255,255,255,0.14); }
+  .sheet.closed { transform: translateY(120%); }
+  .sheet .sheet-footer { position: sticky; bottom: 0; background: transparent; padding-top: 8px; padding-bottom: env(safe-area-inset-bottom, 12px); }
+  .sheet .sheet-footer .primary-action { width: 100%; display: block; }
+</style>
+
+<script>
+  (function(){
+    const selectors = ['.add-panel', '.add-form', '#add-transaction', '.transaction-form', '.modal', '.sheet'];
+    function enhance(el){
+      if (!el || el.dataset.sheetEnhanced) return;
+      el.dataset.sheetEnhanced = '1';
+      el.classList.add('sheet');
+      // Create backdrop
+      const backdrop = document.createElement('div');
+      backdrop.className = 'sheet-backdrop';
+      el.parentNode && el.parentNode.insertBefore(backdrop, el);
+
+      // Add header handle
+      const header = document.createElement('div');
+      header.className = 'sheet-header';
+      const handle = document.createElement('div');
+      handle.className = 'sheet-handle';
+      header.appendChild(handle);
+      el.insertAdjacentElement('afterbegin', header);
+
+      // Ensure overflow and max-height
+      el.style.maxHeight = 'calc(var(--vh, 1vh) * 70)';
+      el.style.overflow = 'auto';
+      el.style.zIndex = 9998;
+
+      // Drag to dismiss
+      let startY = 0, currentY = 0, dragging = false;
+      function onPointerDown(e){
+        dragging = true; startY = e.clientY || (e.touches && e.touches[0].clientY) || 0; el.style.transition = 'none';
+        document.addEventListener('pointermove', onPointerMove);
+        document.addEventListener('pointerup', onPointerUp);
+      }
+      function onPointerMove(e){
+        if(!dragging) return; currentY = (e.clientY|| (e.touches&&e.touches[0].clientY) || 0) - startY; if(currentY<0) currentY=0; el.style.transform = `translateY(${currentY}px)`; backdrop.style.opacity = String(Math.max(0, 1 - currentY / (el.clientHeight || 300)));
+      }
+      function onPointerUp(){
+        dragging = false; el.style.transition='transform 220ms cubic-bezier(.22,.98,.36,1)';
+        const threshold = (el.clientHeight || 300) * 0.25;
+        if(currentY > threshold){
+          // close
+          el.classList.add('closed');
+          backdrop.classList.remove('visible');
+          setTimeout(()=>{el.style.display='none'; backdrop.style.display='none';}, 240);
+        } else {
+          // snap back
+          el.style.transform = '';
+          backdrop.style.opacity = '';
+        }
+        document.removeEventListener('pointermove', onPointerMove);
+        document.removeEventListener('pointerup', onPointerUp);
+      }
+      header.addEventListener('pointerdown', onPointerDown);
+
+      // Backdrop click closes
+      backdrop.addEventListener('click', ()=>{
+        el.classList.add('closed'); backdrop.classList.remove('visible'); setTimeout(()=>{el.style.display='none'; backdrop.style.display='none';}, 220);
+      });
+
+      // When inputs focus, scroll them into view
+      el.addEventListener('focusin', (ev)=>{
+        const target = ev.target; if(target && (target.tagName==='INPUT'||target.tagName==='TEXTAREA'||target.isContentEditable)){
+          setTimeout(()=>{ target.scrollIntoView({behavior:'smooth', block:'center'}); }, 80);
+        }
+      });
+
+      // Show backdrop
+      requestAnimationFrame(()=>{
+        backdrop.classList.add('visible'); backdrop.style.display='block'; el.style.display='block'; el.classList.remove('closed');
+      });
+    }
+
+    function scanAndEnhance(){
+      selectors.forEach(sel=>{
+        document.querySelectorAll(sel).forEach(enhance);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', scanAndEnhance);
+    // also watch for dynamically added panels
+    const mo = new MutationObserver((mutations)=>{ for(const m of mutations) if(m.addedNodes) scanAndEnhance(); });
+    mo.observe(document.body, { childList: true, subtree: true });
+  })();
+</script>
