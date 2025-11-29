@@ -292,8 +292,8 @@ const App: React.FC = () => {
     return t.type === TransactionType.INCOME ? acc + amt : acc - amt;
   }, 0);
 
-  // Total balance includes transactions net + savings (fallback to 0)
-  const totalBalance = (Number(transactionsTotal) || 0) + (Number(savingsTotal) || 0);
+  // Total balance should reflect only transactions net (Ваш Бюджет). Savings/capital is shown separately.
+  const totalBalance = Number(transactionsTotal) || 0;
 
   const monthExpenses = transactions
     .filter(t => t.type === TransactionType.EXPENSE && new Date(t.date).getMonth() === new Date().getMonth())
