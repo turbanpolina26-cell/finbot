@@ -382,7 +382,7 @@ const App: React.FC = () => {
                 </div>
 
                 {/* Mobile bottom sheet */}
-                <div className="sm:hidden fixed left-4 right-4 bottom-6 z-50 bg-tg-card p-3 rounded-2xl border border-white/10 shadow-2xl animate-slide-up">
+                <div className="sm:hidden fixed left-4 right-4 top-6 z-50 bg-gradient-to-r from-[#2c2718] to-[#1a1c24] p-3 rounded-2xl border border-white/10 shadow-2xl animate-slide-up">
                   <div className="flex items-center justify-between mb-2">
                     <div className="text-sm font-semibold text-tg-text">Тема</div>
                     <button onClick={() => setIsThemeMenuOpen(false)} aria-label="Закрыть темы" className="p-2 rounded-full bg-white/6 text-tg-text hover:bg-white/12">
