@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Plus, LayoutDashboard, PieChart, X, Wallet, TrendingDown, TrendingUp, Palette, ChevronDown, Check, Database, Copy, RefreshCw, Wifi, WifiOff } from 'lucide-react';
+import { Plus, LayoutDashboard, PieChart, X, Wallet, TrendingDown, TrendingUp, Palette, ChevronDown, Check, Wifi, WifiOff } from 'lucide-react';
 import { Transaction, TransactionType, Category, User, SavingsAccount } from './types';
 import { TransactionItem } from './components/TransactionItem';
 import { ChartsView } from './components/ChartsView';
@@ -20,39 +20,6 @@ const THEMES = [
   { id: 'aurora', name: 'Aurora (Light)', color: '#f0f2f5' },
   { id: 'forest', name: 'Forest (Nature)', color: '#0d1f12' },
 ];
-
-// SQL Code for Display
-const SETUP_SQL = `
--- 1. Таблица Транзакций
-create table if not exists public.transactions (
-  id uuid default gen_random_uuid() primary key,
-  created_at timestamptz default now(),
-  amount numeric not null,
-  type text not null,
-  category text not null,
-  title text,
-  date timestamptz default now(),
-  author_id text
-);
-
--- 2. Таблица Накоплений
-create table if not exists public.savings (
-  id uuid default gen_random_uuid() primary key,
-  created_at timestamptz default now(),
-  name text not null,
-  amount numeric default 0,
-  apy numeric default 0,
-  color text
-);
-
--- 3. Включаем Realtime
-alter publication supabase_realtime add table public.transactions;
-alter publication supabase_realtime add table public.savings;
-
--- 4. Тестовые данные
-insert into public.transactions (amount, type, category, title, author_id)
-values (500, 'EXPENSE', 'Еда', 'Тестовый кофе', 'u1');
-`;
 
 const App: React.FC = () => {
   // --- Authentication State ---
@@ -249,11 +216,6 @@ const App: React.FC = () => {
     setTimeout(() => setIsSyncing(false), 500);
   };
 
-  const copySqlToClipboard = () => {
-      navigator.clipboard.writeText(SETUP_SQL);
-      alert("SQL код скопирован! Вставьте его в Supabase SQL Editor.");
-  };
-
   // --- Calculated Values ---
   const totalBalance = transactions.reduce((acc, t) => 
     t.type === TransactionType.INCOME ? acc + t.amount : acc - t.amount, 0
@@ -262,47 +224,6 @@ const App: React.FC = () => {
   const monthExpenses = transactions
     .filter(t => t.type === TransactionType.EXPENSE && new Date(t.date).getMonth() === new Date().getMonth())
     .reduce((acc, t) => acc + t.amount, 0);
-
-  // --- DB Error Screen ---
-  if (dbError) {
-      return (
-          <div className="min-h-screen bg-tg-bg text-tg-text p-6 flex flex-col items-center justify-center animate-fade-in">
-              <div className="max-w-md w-full bg-tg-card p-6 rounded-3xl border border-red-500/20 shadow-2xl">
-                  <div className="flex justify-center mb-4">
-                      <div className="bg-red-500/10 p-4 rounded-full">
-                          <Database className="text-red-500" size={32} />
-                      </div>
-                  </div>
-                  <h2 className="text-xl font-bold text-center mb-2">Настройка Базы Данных</h2>
-                  <p className="text-center text-sm text-tg-muted mb-6">
-                     Не удалось найти таблицы. Если вы только что запустили SQL-скрипт, нажмите "Проверить".
-                  </p>
-                  
-                  <div className="bg-black/30 p-4 rounded-xl border border-white/5 mb-6 relative group">
-                      <pre className="text-[10px] text-tg-muted overflow-x-auto whitespace-pre-wrap font-mono h-32 overflow-y-auto custom-scrollbar">
-                          {SETUP_SQL}
-                      </pre>
-                      <button 
-                        onClick={copySqlToClipboard}
-                        className="absolute top-2 right-2 bg-tg-card border border-white/10 p-1.5 rounded-lg hover:bg-white/10 transition-colors"
-                      >
-                          <Copy size={14} />
-                      </button>
-                  </div>
-
-                  <div className="flex gap-3">
-                      <button 
-                        onClick={() => loadData()}
-                        className="flex-1 bg-tg-text text-tg-bg py-3 rounded-xl font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-                      >
-                          <RefreshCw size={18} className={isSyncing ? "animate-spin" : ""} />
-                          Проверить
-                      </button>
-                  </div>
-              </div>
-          </div>
-      );
-  }
 
   // --- Auth Screen Render ---
   if (!isAuthenticated) {
@@ -347,7 +268,7 @@ const App: React.FC = () => {
             <h1 className="font-bold text-xl tracking-tight text-tg-text">Nura.</h1>
             {isSyncing ? (
                 <span className="text-xs text-tg-muted flex items-center gap-1 animate-pulse">
-                    <RefreshCw size={10} className="animate-spin" />
+                    <span className="w-2 h-2 rounded-full bg-tg-accent/50 animate-spin"></span>
                 </span>
             ) : (
                 <span className="w-2 h-2 rounded-full bg-tg-green/50 shadow-[0_0_8px_rgba(76,217,100,0.5)]"></span>

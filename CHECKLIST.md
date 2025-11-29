@@ -21,8 +21,8 @@
 ## Features
 - [x] PIN authentication working (setup + login)
 - [x] Transaction tracking functional
-- [x] Supabase integration active
-- [x] Real-time updates configured
+- [x] Convex backend integration active
+- [x] Real-time data polling configured
 - [x] Telegram bot messaging set up
 - [x] Web app links in bot messages
 - [x] Theme switching available
