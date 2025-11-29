@@ -22,17 +22,6 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Theme Variables - Default (Obsidian) */
-:root {
-  --tg-bg: #0f1014;
-  --tg-card: #1c1e26;
-  --tg-secondary: #252836;
-  --tg-text: #f5f5f7;
-  --tg-muted: #8b9bb4;
-  --tg-accent: #6366f1;
-  --tg-gold: #d4af37;
-}
-
 /* Theme Variables */
 :root[data-theme='obsidian'] {
   --tg-bg: #0f1014;
