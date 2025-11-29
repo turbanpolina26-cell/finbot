@@ -163,23 +163,23 @@ html {
   }
 }
 
-/* Placeholder visibility - HIGH CONTRAST */
+/* Placeholder visibility - theme-aware */
 ::placeholder {
-  color: rgba(255, 255, 255, 0.8) !important;
-  opacity: 1 !important;
+  color: var(--tg-muted) !important;
+  opacity: 0.9 !important;
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: rgba(255, 255, 255, 0.8) !important;
-  opacity: 1 !important;
+  color: var(--tg-muted) !important;
+  opacity: 0.9 !important;
   font-weight: 500;
 }
 
 /* iOS Safari placeholder fix */
 input::-webkit-input-placeholder {
-  color: rgba(255, 255, 255, 0.8) !important;
-  opacity: 1 !important;
+  color: var(--tg-muted) !important;
+  opacity: 0.9 !important;
 }
 /* Prevent zoom on mobile input focus */
 input, select, textarea {

@@ -317,21 +317,42 @@ const App: React.FC = () => {
             </button>
             
             {isThemeMenuOpen && (
-              <div className="absolute top-full right-0 mt-2 w-56 bg-tg-card/95 border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-30 animate-fade-in backdrop-blur-xl">
-                {THEMES.map(t => (
-                  <button 
-                    key={t.id}
-                    onClick={() => { setTheme(t.id); setIsThemeMenuOpen(false); }}
-                    className="w-full text-left px-4 py-3 text-sm hover:bg-white/5 flex items-center justify-between transition-colors duration-200 group border-b border-white/5 last:border-0"
-                  >
-                    <span className="flex items-center gap-3">
-                      <span className="w-4 h-4 rounded-full border-2 border-white/20 group-hover:border-white/40 transition-colors" style={{backgroundColor: t.color}}></span>
-                      <span className="font-medium text-tg-text group-hover:text-tg-accent transition-colors">{t.name}</span>
-                    </span>
-                    {theme === t.id && <Check size={16} className="text-tg-accent animate-pulse" />}
-                  </button>
-                ))}
-              </div>
+              <>
+                {/* Desktop dropdown */}
+                <div className="hidden sm:block absolute top-full right-0 mt-2 w-56 bg-tg-card/95 border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-30 animate-fade-in backdrop-blur-xl">
+                  {THEMES.map(t => (
+                    <button 
+                      key={t.id}
+                      onClick={() => { setTheme(t.id); setIsThemeMenuOpen(false); }}
+                      className="w-full text-left px-4 py-3 text-sm hover:bg-white/5 flex items-center justify-between transition-colors duration-200 group border-b border-white/5 last:border-0"
+                    >
+                      <span className="flex items-center gap-3">
+                        <span className="w-4 h-4 rounded-full border-2 border-white/20 group-hover:border-white/40 transition-colors" style={{backgroundColor: t.color}}></span>
+                        <span className="font-medium text-tg-text group-hover:text-tg-accent transition-colors">{t.name}</span>
+                      </span>
+                      {theme === t.id && <Check size={16} className="text-tg-accent animate-pulse" />}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Mobile bottom sheet */}
+                <div className="sm:hidden fixed left-4 right-4 bottom-6 z-50 bg-tg-card p-3 rounded-2xl border border-white/10 shadow-2xl animate-slide-up">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-sm font-semibold text-tg-text">Тема</div>
+                    <button onClick={() => setIsThemeMenuOpen(false)} aria-label="Закрыть темы" className="p-2 rounded-full bg-white/6 text-tg-text hover:bg-white/12">
+                      <X size={18} />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {THEMES.map(t => (
+                      <button key={t.id} onClick={() => { setTheme(t.id); setIsThemeMenuOpen(false); }} className="flex items-center gap-3 p-3 rounded-xl bg-tg-bg/40 hover:bg-white/5">
+                        <span className="w-5 h-5 rounded-full border border-white/10" style={{backgroundColor: t.color}}></span>
+                        <span className="text-sm font-medium text-tg-text">{t.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
             )}
           </div>
 
@@ -458,7 +479,8 @@ const App: React.FC = () => {
                 <h3 className="text-2xl font-bold bg-gradient-to-r from-tg-text to-tg-muted bg-clip-text text-transparent">Новая операция</h3>
                 <button 
                   onClick={() => setIsAddModalOpen(false)} 
-                  className="bg-white/10 hover:bg-white/20 active:scale-90 p-2 rounded-full text-tg-muted hover:text-white transition-all duration-300"
+                  aria-label="Закрыть модалку"
+                  className="bg-white/6 hover:bg-white/12 active:scale-90 p-2 rounded-full text-tg-text transition-all duration-300"
                 >
                   <X size={20} />
                 </button>
