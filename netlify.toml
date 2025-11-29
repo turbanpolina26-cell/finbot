@@ -11,6 +11,5 @@
   status = 200
 
 # Environment variables (set these in Netlify dashboard)
-# VITE_GEMINI_API_KEY=your_key_here
-# VITE_SUPABASE_URL=your_url_here
-# VITE_SUPABASE_KEY=your_key_here
+[context.production.environment]
+VITE_CONVEX_URL = "https://vivid-pheasant-557.convex.cloud"
