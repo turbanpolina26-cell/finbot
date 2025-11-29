@@ -22,7 +22,15 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Theme Variables */
+/* Theme Variables - Default (Obsidian) */
+:root {
+  --tg-bg: #0f1014;
+  --tg-text: #ffffff;
+  --tg-muted: #8a92b2;
+  --tg-accent: #31a24c;
+  --tg-green: #4cd964;
+}
+
 :root[data-theme='obsidian'] {
   --tg-bg: #0f1014;
   --tg-text: #ffffff;
