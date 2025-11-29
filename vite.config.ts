@@ -20,7 +20,6 @@ export default defineConfig(({ mode }) => {
           output: {
             manualChunks: {
               'react-vendor': ['react', 'react-dom'],
-              'supabase-vendor': ['@supabase/supabase-js'],
               'recharts-vendor': ['recharts'],
             }
           }
