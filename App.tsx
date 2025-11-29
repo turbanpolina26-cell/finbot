@@ -1,7 +1,11 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
-import { Plus, LayoutDashboard, PieChart, X, Wallet, TrendingDown, TrendingUp, Palette, ChevronDown, Check, Wifi, WifiOff } from 'lucide-react';
+import { 
+  Plus, LayoutDashboard, PieChart, X, Wallet, TrendingDown, TrendingUp, 
+  Palette, ChevronDown, Check, ArrowUpRight, ArrowDownLeft, Settings, 
+  Bell, Eye, EyeOff, Send
+} from 'lucide-react';
 import { Transaction, TransactionType, Category, User, SavingsAccount } from './types';
 import { TransactionItem } from './components/TransactionItem';
 import { ChartsView } from './components/ChartsView';
@@ -15,10 +19,10 @@ const USERS: User[] = [
 ];
 
 const THEMES = [
-  { id: 'obsidian', name: 'Obsidian (Dark)', color: '#0f1014' },
+  { id: 'obsidian', name: 'Obsidian', color: '#0f1014' },
   { id: 'cotton-candy', name: 'Cotton Candy', color: '#130f26' },
-  { id: 'aurora', name: 'Aurora (Light)', color: '#f0f2f5' },
-  { id: 'forest', name: 'Forest (Nature)', color: '#0d1f12' },
+  { id: 'aurora', name: 'Aurora', color: '#f0f2f5' },
+  { id: 'forest', name: 'Forest', color: '#0d1f12' },
 ];
 
 const App: React.FC = () => {
@@ -262,92 +266,123 @@ const App: React.FC = () => {
   // --- Main App Render ---
   return (
     <div className="min-h-screen bg-tg-bg text-tg-text pb-28 font-sans selection:bg-tg-accent selection:text-white transition-colors duration-300">
-      {/* Header */}
-      <header className="sticky top-0 z-20 glass border-b border-white/5 px-5 py-4 flex justify-between items-center transition-all duration-300">
+      {/* Premium Header */}
+      <header className="sticky top-0 z-20 glass-high border-b border-white/5 px-5 py-4 flex justify-between items-center transition-all duration-300 backdrop-blur-xl">
         <div className="flex items-center gap-3">
-            <h1 className="font-bold text-xl tracking-tight text-tg-text">Nura.</h1>
-            {isSyncing ? (
-                <span className="text-xs text-tg-muted flex items-center gap-1 animate-pulse">
-                    <span className="w-2 h-2 rounded-full bg-tg-accent/50 animate-spin"></span>
-                </span>
-            ) : (
-                <span className="w-2 h-2 rounded-full bg-tg-green/50 shadow-[0_0_8px_rgba(76,217,100,0.5)]"></span>
-            )}
+          <div className="relative">
+            <h1 className="font-bold text-2xl tracking-tight text-tg-text">Nura</h1>
+            <div className="absolute -bottom-0.5 left-0 h-0.5 w-8 bg-gradient-to-r from-tg-accent to-transparent"></div>
+          </div>
+          {isSyncing ? (
+            <span className="text-xs text-tg-accent/80 flex items-center gap-1 animate-pulse">
+              <span className="w-2 h-2 rounded-full bg-tg-accent animate-spin"></span>
+              Синхро...
+            </span>
+          ) : (
+            <span className="w-2 h-2 rounded-full bg-tg-green/70 shadow-[0_0_12px_rgba(76,217,100,0.6)] animate-pulse"></span>
+          )}
         </div>
+        
         <div className="flex items-center gap-3">
-             <div className="relative">
-                <button 
-                  onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)} 
-                  className="p-2 rounded-full hover:bg-white/5 text-tg-muted flex items-center gap-1 transition-colors"
-                >
-                    <Palette size={20} />
-                    <ChevronDown size={14} />
-                </button>
-                
-                {isThemeMenuOpen && (
-                  <div className="absolute top-full right-0 mt-2 w-48 bg-tg-card border border-white/10 rounded-xl shadow-2xl overflow-hidden z-30 animate-fade-in">
-                    {THEMES.map(t => (
-                      <button 
-                        key={t.id}
-                        onClick={() => { setTheme(t.id); setIsThemeMenuOpen(false); }}
-                        className="w-full text-left px-4 py-3 text-sm hover:bg-white/5 flex items-center justify-between"
-                      >
-                        <span className="flex items-center gap-2">
-                          <span className="w-3 h-3 rounded-full border border-white/10" style={{backgroundColor: t.color}}></span>
-                          {t.name}
-                        </span>
-                        {theme === t.id && <Check size={14} className="text-tg-accent" />}
-                      </button>
-                    ))}
-                  </div>
-                )}
-             </div>
+          <div className="relative">
+            <button 
+              onClick={() => setIsThemeMenuOpen(!isThemeMenuOpen)} 
+              className="p-2.5 rounded-full hover:bg-white/10 text-tg-muted hover:text-tg-text flex items-center gap-1 transition-all duration-300 hover:shadow-lg hover:shadow-tg-accent/10"
+            >
+              <Palette size={20} />
+            </button>
+            
+            {isThemeMenuOpen && (
+              <div className="absolute top-full right-0 mt-2 w-56 bg-tg-card/95 border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-30 animate-fade-in backdrop-blur-xl">
+                {THEMES.map(t => (
+                  <button 
+                    key={t.id}
+                    onClick={() => { setTheme(t.id); setIsThemeMenuOpen(false); }}
+                    className="w-full text-left px-4 py-3 text-sm hover:bg-white/5 flex items-center justify-between transition-colors duration-200 group border-b border-white/5 last:border-0"
+                  >
+                    <span className="flex items-center gap-3">
+                      <span className="w-4 h-4 rounded-full border-2 border-white/20 group-hover:border-white/40 transition-colors" style={{backgroundColor: t.color}}></span>
+                      <span className="font-medium text-tg-text group-hover:text-tg-accent transition-colors">{t.name}</span>
+                    </span>
+                    {theme === t.id && <Check size={16} className="text-tg-accent animate-pulse" />}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
 
-             <div className="flex items-center gap-2 bg-white/5 px-3 py-1.5 rounded-full border border-white/5 cursor-pointer" onClick={handleLogout}>
-                <span className="text-sm">{currentUser?.avatar}</span>
-                <span className="text-xs font-medium text-tg-muted hidden sm:inline">{currentUser?.name}</span>
-             </div>
+          <button 
+            onClick={handleLogout} 
+            className="flex items-center gap-2.5 bg-gradient-to-r from-white/10 to-white/5 hover:from-white/20 hover:to-white/10 px-3.5 py-2 rounded-full border border-white/10 cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-white/10"
+          >
+            <span className="text-base">{currentUser?.avatar}</span>
+            <span className="text-xs font-semibold text-tg-text hidden sm:inline">{currentUser?.name}</span>
+          </button>
         </div>
       </header>
 
-      <main className="p-5 max-w-lg mx-auto">
+      <main className="p-5 max-w-lg mx-auto pb-32">{/*увеличил pb для навигации*/}
         {activeTab === 'home' && (
           <div className="space-y-6 animate-fade-in">
-            {/* Balance Card */}
-            <div className="relative overflow-hidden bg-gradient-to-br from-tg-secondary to-tg-card p-6 rounded-[2rem] shadow-2xl border border-white/5 group">
-               <div className="absolute top-0 right-0 w-32 h-32 bg-tg-accent/10 blur-3xl rounded-full group-hover:bg-tg-accent/20 transition-colors duration-500"></div>
-               
-               <div className="relative z-10">
-                  <p className="text-tg-muted text-xs font-medium uppercase tracking-wider mb-2">Общий бюджет</p>
-                  <h2 className="text-4xl font-bold text-tg-text mb-6">{totalBalance.toLocaleString()} ₽</h2>
-                  
-                  <div className="flex gap-3">
-                    <div className="bg-black/20 p-3 rounded-2xl flex-1 backdrop-blur-sm border border-white/5">
-                        <div className="flex items-center gap-1.5 text-tg-red mb-1">
-                            <div className="p-1 bg-tg-red/10 rounded-full"><TrendingDown size={12} /></div>
-                            <span className="text-[10px] font-medium uppercase opacity-70">Траты (мес)</span>
-                        </div>
-                        <p className="font-semibold text-lg">{monthExpenses.toLocaleString()} ₽</p>
+            {/* Premium Balance Card */}
+            <div className="relative overflow-hidden bg-gradient-to-br from-tg-secondary via-tg-card to-tg-secondary p-8 rounded-3xl shadow-2xl border border-white/10 group">
+              {/* Animated background elements */}
+              <div className="absolute top-0 right-0 w-40 h-40 bg-tg-accent/15 blur-3xl rounded-full group-hover:bg-tg-accent/25 transition-all duration-500"></div>
+              <div className="absolute bottom-0 left-0 w-32 h-32 bg-tg-gold/10 blur-3xl rounded-full group-hover:bg-tg-gold/15 transition-all duration-500"></div>
+              
+              <div className="relative z-10">
+                <p className="text-tg-muted text-xs font-bold uppercase tracking-widest mb-2">Ваш Бюджет</p>
+                <h2 className="text-5xl font-black text-tg-text mb-8 tracking-tight">
+                  {totalBalance.toLocaleString()}
+                  <span className="text-3xl text-tg-muted ml-2">₽</span>
+                </h2>
+                
+                {/* Stats Row */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-black/20 hover:bg-black/30 p-4 rounded-2xl backdrop-blur-sm border border-white/5 transition-all duration-300 group/stat">
+                    <div className="flex items-center gap-1.5 text-red-400 mb-2">
+                      <div className="p-1.5 bg-red-500/10 rounded-full group-hover/stat:bg-red-500/20 transition-colors">
+                        <TrendingDown size={14} />
+                      </div>
+                      <span className="text-[10px] font-bold uppercase opacity-75">Траты (мес)</span>
                     </div>
+                    <p className="font-bold text-xl text-tg-text">{monthExpenses.toLocaleString()} ₽</p>
                   </div>
-               </div>
+                  
+                  <div className="bg-black/20 hover:bg-black/30 p-4 rounded-2xl backdrop-blur-sm border border-white/5 transition-all duration-300 group/stat">
+                    <div className="flex items-center gap-1.5 text-green-400 mb-2">
+                      <div className="p-1.5 bg-green-500/10 rounded-full group-hover/stat:bg-green-500/20 transition-colors">
+                        <TrendingUp size={14} />
+                      </div>
+                      <span className="text-[10px] font-bold uppercase opacity-75">Всего трат</span>
+                    </div>
+                    <p className="font-bold text-xl text-tg-text">{transactions.filter(t => t.type === TransactionType.EXPENSE).reduce((a, t) => a + t.amount, 0).toLocaleString()} ₽</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             {/* Transactions List */}
             <div>
-              <div className="flex justify-between items-end mb-4 px-2">
-                <h3 className="font-bold text-lg text-tg-text">История</h3>
+              <div className="flex justify-between items-end mb-5 px-2">
+                <h3 className="font-bold text-xl text-tg-text">История транзакций</h3>
+                <span className="text-xs text-tg-muted font-semibold">{transactions.length} шт</span>
               </div>
               <div className="space-y-3">
                 {transactions.length === 0 ? (
-                    <div className="text-center py-12 text-tg-muted text-sm bg-tg-card/30 rounded-3xl border border-white/5 border-dashed">
-                      История пуста...
-                    </div>
+                  <div className="text-center py-16 text-tg-muted text-sm bg-tg-card/30 rounded-3xl border-2 border-white/5 border-dashed">
+                    <div className="text-4xl mb-3">📭</div>
+                    История пуста. Добавьте первую транзакцию!
+                  </div>
                 ) : (
-                    transactions.map(t => {
-                        const author = USERS.find(u => u.id === t.authorId);
-                        return <TransactionItem key={t.id} transaction={t} user={author} onDelete={handleDeleteTransaction} />;
-                    })
+                  transactions.map((t, idx) => {
+                    const author = USERS.find(u => u.id === t.authorId);
+                    return (
+                      <div key={t.id} className="animate-fade-in" style={{animationDelay: `${idx * 50}ms`}}>
+                        <TransactionItem transaction={t} user={author} onDelete={handleDeleteTransaction} />
+                      </div>
+                    );
+                  })
                 )}
               </div>
             </div>
@@ -367,120 +402,178 @@ const App: React.FC = () => {
         )}
       </main>
 
-      {/* FAB */}
-      <button 
-        onClick={() => setIsAddModalOpen(true)}
-        className="fixed bottom-24 right-5 bg-tg-text text-tg-bg p-4 rounded-[1.2rem] shadow-xl shadow-white/5 hover:scale-105 active:scale-95 transition-transform z-30 flex items-center justify-center"
-      >
-        <Plus size={24} strokeWidth={2.5} />
-      </button>
+      {/* FAB (Floating Action Button) - Premium Design */}
+      <div className="fixed bottom-28 right-6 z-40 group">
+        {/* Background blur effect on hover */}
+        <div className="absolute inset-0 bg-tg-accent/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 scale-150"></div>
+        
+        <button 
+          onClick={() => setIsAddModalOpen(true)}
+          className="relative w-16 h-16 rounded-full bg-gradient-to-br from-tg-accent to-tg-accent/80 shadow-2xl shadow-tg-accent/30 hover:shadow-tg-accent/50 active:scale-90 transition-all duration-300 flex items-center justify-center group/btn overflow-hidden"
+        >
+          {/* Shimmer effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover/btn:opacity-100 transition-opacity duration-500 animate-pulse"></div>
+          
+          {/* Icon */}
+          <Plus size={28} strokeWidth={2.5} className="text-white relative z-10 group-hover/btn:scale-110 transition-transform duration-300" />
+          
+          {/* Glow ring */}
+          <div className="absolute inset-1 border-2 border-white/30 rounded-full opacity-0 group-hover/btn:opacity-100 animate-pulse"></div>
+        </button>
+      </div>
 
-      {/* Add Transaction Modal */}
+      {/* Add Transaction Modal - Premium Design */}
       {isAddModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/80 backdrop-blur-md animate-fade-in">
-          <div className="bg-tg-card w-full max-w-md p-6 rounded-t-[2rem] sm:rounded-3xl border-t border-white/10 shadow-2xl animate-slide-up">
-            <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-tg-text">Новая операция</h3>
-                <button onClick={() => setIsAddModalOpen(false)} className="bg-white/5 p-2 rounded-full text-tg-muted hover:text-white transition-colors">
-                    <X size={20} />
-                </button>
-            </div>
-
-            <div className="flex gap-2 mb-6 bg-tg-bg p-1.5 rounded-2xl">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-lg animate-fade-in">
+          <div className="bg-gradient-to-b from-tg-card to-tg-secondary w-full max-w-md p-6 rounded-t-3xl sm:rounded-3xl border-t border-white/10 shadow-2xl animate-slide-up relative overflow-hidden">
+            {/* Background decoration */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-tg-accent/5 blur-3xl rounded-full pointer-events-none"></div>
+            
+            <div className="relative z-10">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-2xl font-bold bg-gradient-to-r from-tg-text to-tg-muted bg-clip-text text-transparent">Новая операция</h3>
                 <button 
-                    className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all ${type === TransactionType.EXPENSE ? 'bg-tg-secondary text-white shadow-md' : 'text-tg-muted hover:text-white'}`}
-                    onClick={() => setType(TransactionType.EXPENSE)}
+                  onClick={() => setIsAddModalOpen(false)} 
+                  className="bg-white/10 hover:bg-white/20 active:scale-90 p-2 rounded-full text-tg-muted hover:text-white transition-all duration-300"
                 >
-                    Расход
+                  <X size={20} />
+                </button>
+              </div>
+
+              {/* Type toggle - Smooth Animation */}
+              <div className="flex gap-2 mb-6 bg-tg-bg/50 p-1.5 rounded-2xl border border-white/5">
+                <button 
+                  className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
+                    type === TransactionType.EXPENSE 
+                      ? 'bg-gradient-to-r from-red-500/80 to-orange-500/80 text-white shadow-lg shadow-red-500/30' 
+                      : 'text-tg-muted hover:text-white'
+                  }`}
+                  onClick={() => setType(TransactionType.EXPENSE)}
+                >
+                  <ArrowDownLeft size={16} />
+                  Расход
                 </button>
                 <button 
-                    className={`flex-1 py-3 rounded-xl text-sm font-semibold transition-all ${type === TransactionType.INCOME ? 'bg-tg-secondary text-white shadow-md' : 'text-tg-muted hover:text-white'}`}
-                    onClick={() => setType(TransactionType.INCOME)}
+                  className={`flex-1 py-3 px-4 rounded-xl text-sm font-semibold transition-all duration-300 flex items-center justify-center gap-2 ${
+                    type === TransactionType.INCOME 
+                      ? 'bg-gradient-to-r from-green-500/80 to-emerald-500/80 text-white shadow-lg shadow-green-500/30' 
+                      : 'text-tg-muted hover:text-white'
+                  }`}
+                  onClick={() => setType(TransactionType.INCOME)}
                 >
-                    Доход
+                  <ArrowUpRight size={16} />
+                  Доход
                 </button>
-            </div>
+              </div>
 
-            <div className="space-y-5">
-                <div>
-                    <label className="text-xs text-tg-muted ml-1 block mb-2 font-medium">Сумма</label>
-                    <div className="relative">
-                        <input 
-                            type="number" 
-                            value={amount}
-                            onChange={(e) => setAmount(e.target.value)}
-                            placeholder="0"
-                            className="w-full bg-tg-bg text-3xl font-bold text-tg-text p-5 rounded-2xl focus:outline-none focus:ring-1 focus:ring-tg-accent placeholder-white/10"
-                            autoFocus
-                        />
-                        <span className="absolute right-6 top-1/2 -translate-y-1/2 text-tg-muted font-medium text-xl">₽</span>
-                    </div>
-                </div>
-
-                <div>
-                    <label className="text-xs text-tg-muted ml-1 block mb-2 font-medium">Категория</label>
-                    <div className="relative">
-                        <select 
-                            value={category}
-                            onChange={(e) => setCategory(e.target.value as Category)}
-                            className="w-full bg-tg-bg text-tg-text p-4 rounded-2xl focus:outline-none focus:ring-1 focus:ring-tg-accent appearance-none"
-                        >
-                            {Object.values(Category).map((c) => (
-                                <option key={c} value={c}>{c}</option>
-                            ))}
-                        </select>
-                        <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-tg-muted">
-                            <TrendingDown size={16} />
-                        </div>
-                    </div>
-                </div>
-
-                <div>
-                    <label className="text-xs text-tg-muted ml-1 block mb-2 font-medium">Комментарий</label>
+              <div className="space-y-5">
+                {/* Amount Input */}
+                <div className="group">
+                  <label className="text-xs text-tg-muted ml-1 block mb-2 font-semibold uppercase tracking-wider">Сумма</label>
+                  <div className="relative">
                     <input 
-                        type="text" 
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Например: Ужин в ресторане"
-                        className="w-full bg-tg-bg text-tg-text p-4 rounded-2xl focus:outline-none focus:ring-1 focus:ring-tg-accent placeholder-white/10"
+                      type="number" 
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      placeholder="0"
+                      className="w-full bg-tg-bg/70 text-4xl font-bold text-tg-text p-5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-tg-accent/50 placeholder-tg-muted/60 transition-all duration-300 group-focus-within:ring-tg-accent min-h-16"
+                      autoFocus
+                      inputMode="decimal"
                     />
+                    <span className="absolute right-6 top-1/2 -translate-y-1/2 text-tg-muted font-semibold text-2xl group-focus-within:text-tg-accent transition-colors pointer-events-none">₽</span>
+                  </div>
                 </div>
 
+                {/* Category Select */}
+                <div className="group">
+                  <label className="text-xs text-tg-muted ml-1 block mb-2 font-semibold uppercase tracking-wider">Категория</label>
+                  <div className="relative">
+                    <select 
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value as Category)}
+                      className="w-full bg-tg-bg/70 text-tg-text p-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-tg-accent/50 appearance-none transition-all duration-300 font-medium cursor-pointer group-focus-within:ring-tg-accent text-base min-h-14"
+                    >
+                      {Object.values(Category).map((c) => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none text-tg-muted group-focus-within:text-tg-accent transition-colors">
+                      <TrendingDown size={18} />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Comment Input */}
+                <div className="group">
+                  <label className="text-xs text-tg-muted ml-1 block mb-2 font-semibold uppercase tracking-wider">Комментарий</label>
+                  <input 
+                    type="text" 
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder="Например: Ужин в ресторане"
+                    className="w-full bg-tg-bg/70 text-tg-text p-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-tg-accent/50 placeholder-tg-muted/60 transition-all duration-300 group-focus-within:ring-tg-accent text-base min-h-14"
+                  />
+                </div>
+
+                {/* Save Button */}
                 <button 
-                    onClick={handleAddTransaction}
-                    className="w-full bg-tg-text text-tg-bg font-bold py-4 rounded-2xl mt-4 hover:brightness-90 active:scale-95 transition-all shadow-lg shadow-white/10"
+                  onClick={handleAddTransaction}
+                  className="w-full bg-gradient-to-r from-tg-accent to-tg-accent/80 text-white font-bold py-4 rounded-2xl mt-6 hover:shadow-lg hover:shadow-tg-accent/30 active:scale-95 transition-all duration-300 shadow-md shadow-tg-accent/20 flex items-center justify-center gap-2"
                 >
-                    Сохранить
+                  <Send size={18} />
+                  Сохранить
                 </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
-      {/* Glass Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 glass-high pb-safe pt-3 px-8 flex justify-between z-20 rounded-t-[2rem]">
+      {/* Premium Navigation Bar */}
+      <nav className="fixed bottom-0 left-0 right-0 glass-high pb-safe pt-4 px-4 flex justify-around items-center z-20 rounded-t-3xl border-t border-white/10">
         <button 
-            onClick={() => setActiveTab('home')}
-            className={`flex flex-col items-center gap-1.5 p-2 transition-all ${activeTab === 'home' ? 'text-tg-text scale-105' : 'text-tg-muted hover:text-gray-400'}`}
+          onClick={() => setActiveTab('home')}
+          className={`flex flex-col items-center gap-1.5 px-4 py-2.5 rounded-2xl transition-all duration-300 min-h-14 min-w-14 active:scale-95 active:bg-white/5 ${ 
+            activeTab === 'home' 
+              ? 'bg-tg-accent/20 text-tg-accent shadow-lg shadow-tg-accent/20 scale-105' 
+              : 'text-tg-muted'
+          }`}
         >
+          <div className="relative">
             <LayoutDashboard size={24} strokeWidth={activeTab === 'home' ? 2.5 : 2} />
-            <span className="text-[10px] font-medium tracking-wide">Главная</span>
+            {activeTab === 'home' && <div className="absolute inset-0 bg-tg-accent/20 blur-md rounded-full"></div>}
+          </div>
+          <span className="text-[11px] font-semibold tracking-wide">Главная</span>
         </button>
         
         <button 
-            onClick={() => setActiveTab('savings')}
-            className={`flex flex-col items-center gap-1.5 p-2 transition-all ${activeTab === 'savings' ? 'text-tg-gold scale-105' : 'text-tg-muted hover:text-gray-400'}`}
+          onClick={() => setActiveTab('savings')}
+          className={`flex flex-col items-center gap-1.5 px-4 py-2.5 rounded-2xl transition-all duration-300 min-h-14 min-w-14 active:scale-95 active:bg-white/5 ${
+            activeTab === 'savings' 
+              ? 'bg-tg-gold/20 text-tg-gold shadow-lg shadow-tg-gold/20 scale-105' 
+              : 'text-tg-muted'
+          }`}
         >
+          <div className="relative">
             <Wallet size={24} strokeWidth={activeTab === 'savings' ? 2.5 : 2} />
-            <span className="text-[10px] font-medium tracking-wide">Капитал</span>
+            {activeTab === 'savings' && <div className="absolute inset-0 bg-tg-gold/20 blur-md rounded-full"></div>}
+          </div>
+          <span className="text-[11px] font-semibold tracking-wide">Капитал</span>
         </button>
 
         <button 
-            onClick={() => setActiveTab('stats')}
-            className={`flex flex-col items-center gap-1.5 p-2 transition-all ${activeTab === 'stats' ? 'text-tg-accent scale-105' : 'text-tg-muted hover:text-gray-400'}`}
+          onClick={() => setActiveTab('stats')}
+          className={`flex flex-col items-center gap-1.5 px-4 py-2.5 rounded-2xl transition-all duration-300 min-h-14 min-w-14 active:scale-95 active:bg-white/5 ${
+            activeTab === 'stats' 
+              ? 'bg-purple-500/20 text-purple-400 shadow-lg shadow-purple-500/20 scale-105' 
+              : 'text-tg-muted'
+          }`}
         >
+          <div className="relative">
             <PieChart size={24} strokeWidth={activeTab === 'stats' ? 2.5 : 2} />
-            <span className="text-[10px] font-medium tracking-wide">Отчеты</span>
+            {activeTab === 'stats' && <div className="absolute inset-0 bg-purple-500/20 blur-md rounded-full"></div>}
+          </div>
+          <span className="text-[11px] font-semibold tracking-wide">Отчеты</span>
         </button>
       </nav>
     </div>

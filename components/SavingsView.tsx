@@ -67,26 +67,26 @@ export const SavingsView: React.FC<Props> = ({ accounts, onAddAccount, onDeleteA
   return (
     <div className="space-y-6 pb-24 animate-fade-in">
       {/* Header Summary */}
-      <div className="bg-gradient-to-br from-[#2c2718] to-[#1a1c24] border border-[#d4af37]/20 p-6 rounded-3xl relative overflow-hidden shadow-lg">
+      <div className="bg-gradient-to-br from-tg-secondary to-tg-card border border-tg-gold/30 p-6 rounded-3xl relative overflow-hidden shadow-lg">
         <div className="absolute top-0 right-0 p-4 opacity-10">
-          <PiggyBank size={120} className="text-[#d4af37]" />
+          <PiggyBank size={120} className="text-tg-gold" />
         </div>
         
-        <p className="text-[#d4af37] text-sm font-medium tracking-wider mb-2 uppercase">Общий капитал</p>
-        <h2 className="text-4xl font-bold text-white mb-6">{totalCapital.toLocaleString()} ₽</h2>
+        <p className="text-tg-gold text-sm font-bold tracking-wider mb-2 uppercase">Общий капитал</p>
+        <h2 className="text-4xl font-bold text-tg-text mb-6">{totalCapital.toLocaleString()} ₽</h2>
         
         <div className="grid grid-cols-3 gap-2 mt-4">
-            <div className="bg-black/30 backdrop-blur-md p-3 rounded-xl border border-white/5">
-                <p className="text-[10px] text-tg-muted uppercase">В День</p>
-                <p className="text-sm font-semibold text-tg-green">+{Math.floor(dailyIncome).toLocaleString()}</p>
+            <div className="bg-black/30 backdrop-blur-md p-3 rounded-xl border border-white/5 min-h-16 flex flex-col justify-center">
+                <p className="text-[10px] text-tg-muted uppercase font-bold">В День</p>
+                <p className="text-sm font-bold text-tg-green">+{Math.floor(dailyIncome).toLocaleString()}</p>
             </div>
-            <div className="bg-black/30 backdrop-blur-md p-3 rounded-xl border border-white/5">
-                <p className="text-[10px] text-tg-muted uppercase">В Месяц</p>
-                <p className="text-sm font-semibold text-tg-green">+{Math.floor(monthlyIncome).toLocaleString()}</p>
+            <div className="bg-black/30 backdrop-blur-md p-3 rounded-xl border border-white/5 min-h-16 flex flex-col justify-center">
+                <p className="text-[10px] text-tg-muted uppercase font-bold">В Месяц</p>
+                <p className="text-sm font-bold text-tg-green">+{Math.floor(monthlyIncome).toLocaleString()}</p>
             </div>
-            <div className="bg-black/30 backdrop-blur-md p-3 rounded-xl border border-white/5">
-                <p className="text-[10px] text-tg-muted uppercase">В Год</p>
-                <p className="text-sm font-semibold text-[#d4af37]">+{Math.floor(yearlyIncome).toLocaleString()}</p>
+            <div className="bg-black/30 backdrop-blur-md p-3 rounded-xl border border-white/5 min-h-16 flex flex-col justify-center">
+                <p className="text-[10px] text-tg-muted uppercase font-bold">В Год</p>
+                <p className="text-sm font-bold text-tg-gold">+{Math.floor(yearlyIncome).toLocaleString()}</p>
             </div>
         </div>
       </div>
@@ -95,10 +95,10 @@ export const SavingsView: React.FC<Props> = ({ accounts, onAddAccount, onDeleteA
       {accounts.length > 0 && (
           <div className="bg-tg-card p-4 rounded-3xl border border-white/5">
              <div className="flex items-center justify-between mb-4">
-                 <h3 className="text-xs font-bold text-tg-muted uppercase tracking-wider flex items-center gap-2">
+                 <h3 className="text-xs font-bold text-tg-text uppercase tracking-wider flex items-center gap-2">
                      <GraphIcon size={14} /> Прогноз роста (1 год)
                  </h3>
-                 <span className="text-xs text-tg-green">+{Math.floor(yearlyIncome).toLocaleString()} ₽</span>
+                 <span className="text-xs font-bold text-tg-green">+{Math.floor(yearlyIncome).toLocaleString()} ₽</span>
              </div>
              <div className="h-32 w-full">
                 <ResponsiveContainer width="100%" height="100%">
@@ -110,10 +110,10 @@ export const SavingsView: React.FC<Props> = ({ accounts, onAddAccount, onDeleteA
                             </linearGradient>
                         </defs>
                         <Tooltip 
-                            contentStyle={{ backgroundColor: '#17212b', borderColor: '#d4af37', borderRadius: '8px', color: '#fff' }}
-                            itemStyle={{ color: '#d4af37' }}
+                            contentStyle={{ backgroundColor: '#17212b', borderColor: '#d4af37', borderRadius: '8px', color: '#fff', fontSize: '14px' }}
+                            itemStyle={{ color: '#d4af37', fontSize: '14px' }}
                             formatter={(value: number) => [`${value.toLocaleString()} ₽`, 'Капитал']}
-                            labelStyle={{ color: '#8b9bb4' }}
+                            labelStyle={{ color: '#8b9bb4', fontSize: '14px' }}
                         />
                         <Area type="monotone" dataKey="value" stroke="#d4af37" strokeWidth={2} fillOpacity={1} fill="url(#colorValue)" />
                     </AreaChart>

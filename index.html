@@ -4,6 +4,29 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>Nura Finance</title>
+    <!-- Temporary Tailwind Play CDN (quick fix / fallback) -->
+    <script>
+      tailwind = tailwind || {};
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              tg: {
+                bg: 'var(--tg-bg)',
+                card: 'var(--tg-card)',
+                secondary: 'var(--tg-secondary)',
+                text: 'var(--tg-text)',
+                muted: 'var(--tg-muted)',
+                accent: 'var(--tg-accent)',
+                gold: 'var(--tg-gold)'
+              }
+            }
+          }
+        }
+      }
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <!-- Favicon fix -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦁</text></svg>">
     
