@@ -2,17 +2,28 @@ import { ConvexClient } from "convex/browser";
 import { api } from "../convex/_generated/api";
 import { Transaction, SavingsAccount } from "../types";
 
-// Initialize Convex client from environment
+// Initialize Convex client from environment with a safe guard.
 const convexUrl = import.meta.env.VITE_CONVEX_URL;
+let client: ConvexClient | null = null;
 if (!convexUrl) {
-  throw new Error("VITE_CONVEX_URL environment variable is not set");
+  // Do not throw — allow app to run in read-only / fallback mode.
+  // Hosting builds should set VITE_CONVEX_URL, but keeping a graceful
+  // fallback avoids hard crashes during builds or in environments
+  // where the variable isn't configured yet.
+  // eslint-disable-next-line no-console
+  console.warn("VITE_CONVEX_URL is not set — running in read-only fallback mode.");
+} else {
+  client = new ConvexClient(convexUrl);
 }
-
-const client = new ConvexClient(convexUrl);
 
 // ===== Transactions =====
 
 export const fetchTransactions = async (): Promise<{ data: Transaction[] | null; error: any }> => {
+  if (!client) {
+    // Fallback: return empty list when no Convex configured.
+    return { data: [], error: null };
+  }
+
   try {
     const data = await client.query(api.functions.listTransactions);
     console.log("[Convex] Transactions fetched:", data.length);
@@ -42,6 +53,7 @@ export const fetchTransactionsWithCache = async (): Promise<{ data: Transaction[
 
 let pollingInterval: any = null;
 export const startPollingTransactions = (onUpdate: (tx: Transaction[]) => void, intervalMs = 5000) => {
+  if (!client) return; // no-op in fallback mode
   if (pollingInterval) return;
   console.log("[Convex] Starting polling every", intervalMs, "ms");
   
@@ -63,6 +75,10 @@ export const stopPollingTransactions = () => {
 };
 
 export const addTransactionToDb = async (transaction: Transaction) => {
+  if (!client) {
+    return { error: "VITE_CONVEX_URL not set" };
+  }
+
   try {
     const result = await client.mutation(api.functions.addTransaction, {
       amount: transaction.amount,
@@ -81,6 +97,8 @@ export const addTransactionToDb = async (transaction: Transaction) => {
 };
 
 export const deleteTransactionFromDb = async (id: string) => {
+  if (!client) return { error: "VITE_CONVEX_URL not set" };
+
   try {
     await client.mutation(api.functions.deleteTransaction, { id: id as any });
     console.log("[Convex] Transaction deleted successfully");
@@ -94,6 +112,10 @@ export const deleteTransactionFromDb = async (id: string) => {
 // ===== Savings =====
 
 export const fetchSavings = async (): Promise<{ data: SavingsAccount[] | null; error: any }> => {
+  if (!client) {
+    return { data: [], error: null };
+  }
+
   try {
     const data = await client.query(api.functions.listSavings);
     console.log("[Convex] Savings fetched:", data.length);
@@ -114,6 +136,8 @@ export const fetchSavings = async (): Promise<{ data: SavingsAccount[] | null; e
 };
 
 export const addSavingToDb = async (account: SavingsAccount) => {
+  if (!client) return { error: "VITE_CONVEX_URL not set" };
+
   try {
     const result = await client.mutation(api.functions.addSaving, {
       name: account.name,
@@ -130,6 +154,8 @@ export const addSavingToDb = async (account: SavingsAccount) => {
 };
 
 export const deleteSavingFromDb = async (id: string) => {
+  if (!client) return { error: "VITE_CONVEX_URL not set" };
+
   try {
     await client.mutation(api.functions.deleteSaving, { id: id as any });
     console.log("[Convex] Saving deleted successfully");
