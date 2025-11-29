@@ -153,6 +153,17 @@ html {
   }
 }
 
+@keyframes savings-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
 }
@@ -175,6 +186,10 @@ html {
 
 .savings-removing {
   animation: savings-remove 0.35s ease-out forwards;
+}
+
+.savings-entering {
+  animation: savings-enter 0.4s ease-out forwards;
 }
 
 /* Safe area for mobile */
@@ -250,9 +265,12 @@ input:focus {
 /* Performance: Optimize animations */
 .animate-fade-in,
 .animate-slide-up,
-.animate-pulse-glow {
+.animate-pulse-glow,
+.savings-removing,
+.savings-entering {
   will-change: opacity, transform;
   transform: translateZ(0);
+  backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
 }
 

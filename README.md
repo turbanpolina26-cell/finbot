@@ -1,35 +1,51 @@
-# Nura Finance Bot 💰
+# Finbot - Financial Analytics App 💰
 
-A Telegram bot for financial notifications integrated with Supabase and a React web app dashboard.
+A React web app for managing transactions and passive income (capital) accounts. Real-time sync with Convex backend, designed for financial tracking with delightful UI/UX.
 
 ## ✨ Features
 
-- 📱 **Telegram Notifications** — Instant alerts for new transactions
-- 💾 **Supabase Integration** — Real-time database synchronization  
-- 📊 **Web Dashboard** — React app deployed on Netlify
-- 🔐 **Secure Configuration** — Environment variables for secrets management
-- 🔔 **Real-time Updates** — WebSocket connection to Supabase for instant notifications
+- 📊 **Transaction Tracking** — Add, view, and delete transactions with smooth animations
+- 💼 **Savings/Capital Management** — Track investment accounts with APY calculations
+- 📈 **Income Projections** — Visualize 12-month growth with Recharts charts
+- 🎨 **Beautiful UI** — Dark theme with gradient effects, smooth animations, accessible design
+- ⚡ **Real-time Sync** — Convex backend for instant updates across devices
+- 🔐 **Secure** — Server-side validation, environment variables for secrets
+- 📱 **Mobile Responsive** — Touch-friendly on all devices (375px to 1920px)
+- ♿ **Accessible** — WCAG AA compliant, keyboard navigation, screen reader support
 
 ## 📁 Project Structure
 
 ```
 finbot-analytics/
-├── backend/
-│   └── bot.js                 # Telegram bot server (Node.js)
 ├── components/
-│   ├── ChartsView.tsx         # Transaction charts
-│   ├── SavingsView.tsx        # Savings analytics
-│   └── TransactionItem.tsx    # Transaction list item
+│   ├── UI/                    # Shared component library (Button, Input, Card, Modal, etc.)
+│   ├── SavingsView.tsx        # Capital/savings main view
+│   ├── SavingsHeader.tsx      # Header with balance and income breakdown
+│   ├── AccountsList.tsx       # List of savings accounts
+│   ├── AddAccountModal.tsx    # Modal to add new account
+│   ├── ProjectionChart.tsx    # Growth projection chart
+│   ├── TransactionItem.tsx    # Individual transaction component
+│   ├── ChartsView.tsx         # Analytics charts
+│   └── ...
 ├── services/
-│   ├── geminiService.ts       # Google Gemini API integration
-│   └── supabaseClient.ts      # Supabase client config
-├── App.tsx                    # Main React app
+│   ├── convexClient.ts        # Convex client configuration
+│   ├── geminiService.ts       # AI/LLM integration (Google Gemini)
+│   ├── utils.ts               # Utility functions (format, calculate, parse)
+│   └── __tests__/             # Unit tests for services
+├── convex/
+│   ├── functions.ts           # Convex API endpoints
+│   ├── schema.ts              # Data model schema
+│   └── _generated/            # Auto-generated Convex types
+├── App.tsx                    # Main application component
 ├── index.tsx                  # React entry point
-├── .env                       # Environment variables (⚠️ not in repo)
-├── .env.example               # Template for .env
+├── types.ts                   # Shared TypeScript interfaces
+├── index.css                  # Global styles, animations, themes
+├── tailwind.config.js         # Design tokens (colors, spacing, motion)
+├── DESIGN.md                  # Design system documentation
+├── ARCHITECTURE.md            # Architecture & development guide
+├── CONTRIBUTING.md            # Contributing guidelines
 ├── package.json
-├── vite.config.ts
-└── README.md
+└── README.md                  # This file
 ```
 
 ## 🚀 Quick Start
@@ -42,11 +58,193 @@ npm install
 
 ### 2. Configure Environment
 
-Copy template and fill with your credentials:
+Copy template and add your Convex project ID:
 
 ```bash
 cp .env.example .env
 ```
+
+Edit `.env` with your Convex credentials.
+
+### 3. Run Development Server
+
+```bash
+npm run dev
+```
+
+Opens at `http://localhost:3001` (or next available port).
+
+### 4. Build for Production
+
+```bash
+npm run build
+npm run preview  # Test production build locally
+```
+
+## 📚 Documentation
+
+- **[DESIGN.md](./DESIGN.md)** — Color tokens, spacing scale, typography, animations, component patterns
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** — Project structure, state management, data flow, testing strategy
+- **[CONTRIBUTING.md](./CONTRIBUTING.md)** — PR workflow, commit conventions, code style, linting rules
+
+## 🔧 Scripts
+
+```bash
+npm run dev          # Start dev server with hot reload
+npm run build        # Build for production
+npm run preview      # Preview production build locally
+npm run lint         # Run ESLint
+npm run type-check   # Run TypeScript compiler
+npm test             # Run unit tests (if configured)
+```
+
+## 🎯 Key Features Explained
+
+### Transactions
+Add daily expenses, categorize, and track spending. Auto-calculate balance. Delete with undo.
+
+### Savings/Capital
+Track investment accounts (bank deposits, stocks, crypto) with APY rates.  
+See daily, monthly, yearly passive income.
+
+### Projections
+12-month chart showing compound interest growth with monthly breakdown.
+
+### Budget Header
+Shows total balance (transactions only, excludes savings).
+
+## 🎨 Design System
+
+All components follow a cohesive design system defined in `DESIGN.md`:
+
+- **Colors**: Dark theme with semantic colors (profit=green, loss=red)
+- **Spacing**: 4px, 8px, 12px, 16px, 24px, 32px scale
+- **Motion**: fast (150ms), normal (300ms), slow (500ms) durations
+- **Typography**: H1–XS scale with consistent font weights
+- **Accessibility**: WCAG AA contrast, focus styles, ARIA labels
+
+## 🧪 Testing
+
+### Unit Tests
+```bash
+npm test  # Run Jest + React Testing Library tests
+```
+
+### Manual Testing
+- **Mobile**: 375px, 768px, 1024px widths
+- **Keyboard**: Tab, Enter, Escape navigation
+- **Screen Reader**: Test with NVDA, JAWS, or Mac VoiceOver
+- **Performance**: Lighthouse audit (target >90)
+
+### E2E Tests (Cypress, if configured)
+```bash
+npm run e2e         # Run Cypress tests
+npm run e2e:ui      # Open Cypress UI
+```
+
+## 🔒 Security
+
+- ✅ No API keys in frontend code (use env variables)
+- ✅ Server-side validation for all inputs
+- ✅ XSS protection via React's built-in escaping
+- ✅ CSRF protection via Convex (when deployed)
+- ✅ Rate limiting on sensitive endpoints
+
+### Environment Variables
+
+Never commit `.env`! Create `.env.example` with template:
+
+```
+VITE_CONVEX_URL=https://your-project.convex.cloud
+VITE_GEMINI_API_KEY=your-key-here  # if using Gemini
+```
+
+## 📦 Dependencies
+
+### Core
+- **React 18** — UI framework
+- **TypeScript** — Type safety
+- **Tailwind CSS** — Utility-first styling
+- **Vite** — Fast build tool
+
+### UI & Animations
+- **lucide-react** — 300+ icons
+- **Recharts** — React chart library
+- **Framer Motion** — Advanced animations (optional)
+
+### Backend & State
+- **Convex** — Backend API & real-time sync
+- **React Hooks** — State management
+
+### Dev Tools
+- **ESLint** — Code linting
+- **Prettier** — Code formatting
+- **Jest** — Unit testing (optional)
+- **Cypress** — E2E testing (optional)
+
+## 🚢 Deployment
+
+### Staging
+```bash
+npm run build
+npm run deploy:staging  # Deploy to staging Convex instance
+```
+
+### Production
+```bash
+npm run build
+npm run deploy:prod    # Deploy to production
+# Monitor for errors:
+npm run monitor        # Check Sentry/error logs
+```
+
+Deploy to:
+- **Netlify** — Frontend (auto-deploy on git push)
+- **Convex** — Backend (auto-sync with git)
+
+## 🐛 Debugging
+
+### Development
+- Open `DevTools` (F12 → Console tab)
+- Check for errors/warnings
+- Use React DevTools extension for component inspection
+
+### Lighthouse Audit
+```bash
+npm run build
+npm run preview
+# Open DevTools → Lighthouse tab
+# Target: Performance >90, Accessibility >95, Best Practices >90
+```
+
+### Network Issues
+- DevTools → Network tab
+- Monitor Convex API calls
+- Check browser console for CORS errors
+
+## 🤝 Contributing
+
+Please read [CONTRIBUTING.md](./CONTRIBUTING.md) for:
+- Branch naming conventions
+- Commit message format
+- Testing requirements before PR
+- Code style guidelines
+
+## 📜 License
+
+MIT © 2025 Finbot Contributors
+
+## 📧 Support
+
+For issues, feature requests, or questions:
+1. Check [existing issues](https://github.com/turbanpolina26-cell/finbot/issues)
+2. Create a new issue with clear description
+3. For security issues, email privately (do not create public issue)
+
+---
+
+**Happy tracking!** 💸📊✨
+
 
 Edit `.env`:
 
