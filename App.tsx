@@ -6,7 +6,7 @@ import { Transaction, TransactionType, Category, User, SavingsAccount } from './
 import { TransactionItem } from './components/TransactionItem';
 import { ChartsView } from './components/ChartsView';
 import { SavingsView } from './components/SavingsView';
-import { fetchTransactions, addTransactionToDb, deleteTransactionFromDb, fetchSavings, addSavingToDb, deleteSavingFromDb } from './services/supabaseClient';
+import { fetchTransactions, addTransactionToDb, deleteTransactionFromDb, fetchSavings, addSavingToDb, deleteSavingFromDb, startPollingTransactions, stopPollingTransactions } from './services/convexClient';
 
 // Updated Users
 const USERS: User[] = [
