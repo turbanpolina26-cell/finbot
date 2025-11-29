@@ -117,7 +117,7 @@ const App: React.FC = () => {
     // 4. Polling fallback (no realtime, REST-only)
     const pollInterval = setInterval(() => {
       loadData().catch(err => console.warn('Polling update failed:', err));
-    }, 10000); // Poll every 10 seconds
+    }, 5000); // Poll every 5 seconds for snappier updates
 
     return () => {
       clearInterval(pollInterval);
@@ -192,18 +192,33 @@ const App: React.FC = () => {
       date: new Date().toISOString(),
       authorId: currentUser.id
     };
-
     try {
+      // Optimistic update: show transaction immediately with temp id
+      const tempId = 'tmp-' + Date.now();
+      const tempTx: Transaction = { ...newTransaction, id: tempId };
+      setTransactions((prev) => [tempTx, ...prev]);
+
       setIsSyncing(true);
-      await addTransactionToDb(newTransaction);
-      // Wait a sec for realtime or reload manually if needed
-      setTimeout(() => setIsSyncing(false), 500);
+      const result: any = await addTransactionToDb(newTransaction);
+
+      // Replace temp id with real id if backend returns it
+      if (result && (result._id || result.id)) {
+        const realId = result._id || result.id;
+        setTransactions((prev) => prev.map(t => t.id === tempId ? { ...t, id: realId } : t));
+      } else {
+        // Trigger background refresh if shape unknown
+        setTimeout(() => { loadData().catch(() => {}); }, 800);
+      }
+
+      setTimeout(() => setIsSyncing(false), 300);
 
       setIsAddModalOpen(false);
       setAmount('');
       setTitle('');
     } catch (error) {
       console.error('Error adding transaction:', error);
+      // remove optimistic tx on failure
+      setTransactions((prev) => prev.filter(t => !t.id?.toString().startsWith('tmp-')));
       setIsSyncing(false);
       alert('Error adding transaction. Please try again.');
     }
@@ -222,12 +237,18 @@ const App: React.FC = () => {
   };
 
   const handleDeleteTransaction = async (id: string) => {
+    // Optimistic removal for snappy UX
+    const previous = transactions;
+    setTransactions((prev) => prev.filter(t => t.id !== id));
     try {
       setIsSyncing(true);
-      await deleteTransactionFromDb(id);
-      setTimeout(() => setIsSyncing(false), 500);
+      const res = await deleteTransactionFromDb(id);
+      if (res && res.error) throw res.error;
+      setTimeout(() => setIsSyncing(false), 300);
     } catch (error) {
       console.error('Error deleting transaction:', error);
+      // revert on failure
+      setTransactions(previous);
       setIsSyncing(false);
       alert('Error deleting transaction. Please try again.');
     }
@@ -245,9 +266,14 @@ const App: React.FC = () => {
     }
   };
   // --- Calculated Values ---
-  const totalBalance = transactions.reduce((acc, t) => 
+  const savingsTotal = savingsAccounts.reduce((s, a) => s + (a.amount || 0), 0);
+
+  const transactionsTotal = transactions.reduce((acc, t) => 
     t.type === TransactionType.INCOME ? acc + t.amount : acc - t.amount, 0
-  );
+  , 0);
+
+  // Total balance includes transactions net + savings
+  const totalBalance = transactionsTotal + savingsTotal;
 
   const monthExpenses = transactions
     .filter(t => t.type === TransactionType.EXPENSE && new Date(t.date).getMonth() === new Date().getMonth())
