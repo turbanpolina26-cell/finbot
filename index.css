@@ -173,6 +173,10 @@ html {
   animation: savings-remove 0.3s ease-out forwards;
 }
 
+.savings-removing {
+  animation: savings-remove 0.35s ease-out forwards;
+}
+
 /* Safe area for mobile */
 @supports (padding: max(0px)) {
   body {
