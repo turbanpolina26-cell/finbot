@@ -135,6 +135,24 @@ html {
   }
 }
 
+@keyframes savings-remove {
+  from {
+    opacity: 1;
+    transform: scale(1);
+    max-height: 100px;
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.9);
+    max-height: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    margin-top: 0px;
+    margin-bottom: 0px;
+    border-width: 0px;
+  }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
 }
@@ -149,6 +167,10 @@ html {
 
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
+}
+
+.animate-savings-remove {
+  animation: savings-remove 0.3s ease-out forwards;
 }
 
 /* Safe area for mobile */
@@ -181,6 +203,33 @@ input::-webkit-input-placeholder {
   color: var(--tg-muted) !important;
   opacity: 0.9 !important;
 }
+
+/* Force contrast for placeholders and modal inputs as a quick fallback */
+.add-transaction-modal input::placeholder,
+.add-transaction-modal textarea::placeholder,
+.add-transaction-modal select::placeholder,
+.savings-add-modal input::placeholder,
+.savings-add-modal textarea::placeholder,
+.savings-add-modal select::placeholder {
+  color: var(--tg-text) !important;
+  opacity: 0.6 !important;
+}
+
+/* Force contrast for placeholders and modal inputs as a quick fallback */
+.add-transaction-modal input::placeholder,
+.add-transaction-modal textarea::placeholder,
+.add-transaction-modal select::placeholder {
+  color: var(--tg-text) !important;
+  opacity: 0.6 !important;
+}
+
+.add-transaction-modal input,
+.add-transaction-modal select,
+.add-transaction-modal textarea {
+  background: var(--tg-card) !important;
+  border: 1px solid rgba(255,255,255,0.04) !important;
+}
+
 /* Prevent zoom on mobile input focus */
 input, select, textarea {
   font-size: 16px !important;

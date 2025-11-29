@@ -225,14 +225,29 @@ const App: React.FC = () => {
   };
 
   const handleAddSavingsAccount = async (account: SavingsAccount) => {
+    // Try server save, but fallback to optimistic local save + localStorage if backend fails
     try {
       setIsSyncing(true);
-      await addSavingToDb(account);
-      setTimeout(() => setIsSyncing(false), 500);
+      const res: any = await addSavingToDb(account);
+      // backend may return { error } on failure
+      if (res && res.error) throw res.error;
+      // Success: reload data shortly (polling will catch up)
+      setTimeout(() => setIsSyncing(false), 400);
     } catch (error) {
-      console.error('Error adding savings account:', error);
+      console.warn('Backend save failed, applying local fallback for savings:', error);
+      // optimistic local add with temp id
+      const tempAcc: SavingsAccount = { ...account, id: 'tmp-sv-' + Date.now() };
+      setSavingsAccounts(prev => [tempAcc, ...prev]);
+      // persist fallback to localStorage so user doesn't lose it
+      try {
+        const existing = JSON.parse(localStorage.getItem('nura_savings_fallback') || '[]');
+        existing.unshift(tempAcc);
+        localStorage.setItem('nura_savings_fallback', JSON.stringify(existing));
+      } catch (e) {
+        console.warn('Could not persist savings fallback to localStorage', e);
+      }
       setIsSyncing(false);
-      alert('Error adding savings account. Please try again.');
+      alert('Сохранено локально (офлайн-режим). Будет синхронизировано позже.');
     }
   };
 
@@ -266,14 +281,19 @@ const App: React.FC = () => {
     }
   };
   // --- Calculated Values ---
-  const savingsTotal = savingsAccounts.reduce((s, a) => s + (a.amount || 0), 0);
+  // Robust capital calculation: coerce amounts to numbers and ignore invalid values
+  const savingsTotal = savingsAccounts.reduce((s, a) => {
+    const amt = Number(a.amount) || 0;
+    return s + amt;
+  }, 0);
 
-  const transactionsTotal = transactions.reduce((acc, t) => 
-    t.type === TransactionType.INCOME ? acc + t.amount : acc - t.amount, 0
-  , 0);
+  const transactionsTotal = transactions.reduce((acc, t) => {
+    const amt = Number(t.amount) || 0;
+    return t.type === TransactionType.INCOME ? acc + amt : acc - amt;
+  }, 0);
 
-  // Total balance includes transactions net + savings
-  const totalBalance = transactionsTotal + savingsTotal;
+  // Total balance includes transactions net + savings (fallback to 0)
+  const totalBalance = (Number(transactionsTotal) || 0) + (Number(savingsTotal) || 0);
 
   const monthExpenses = transactions
     .filter(t => t.type === TransactionType.EXPENSE && new Date(t.date).getMonth() === new Date().getMonth())
@@ -479,7 +499,14 @@ const App: React.FC = () => {
         <div className="absolute inset-0 bg-tg-accent/20 rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 scale-150"></div>
         
         <button 
-          onClick={() => setIsAddModalOpen(true)}
+          onClick={() => {
+            // If user is on savings tab, open savings modal via event (fallback)
+            if (activeTab === 'savings') {
+              window.dispatchEvent(new CustomEvent('openSavingsModal'));
+              return;
+            }
+            setIsAddModalOpen(true);
+          }}
           className="relative w-16 h-16 rounded-full bg-gradient-to-br from-tg-accent to-tg-accent/80 shadow-2xl shadow-tg-accent/30 hover:shadow-tg-accent/50 active:scale-90 transition-all duration-300 flex items-center justify-center group/btn overflow-hidden"
         >
           {/* Shimmer effect */}
@@ -496,7 +523,7 @@ const App: React.FC = () => {
       {/* Add Transaction Modal - Premium Design */}
       {isAddModalOpen && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-lg animate-fade-in">
-          <div className="bg-gradient-to-b from-tg-card to-tg-secondary w-full max-w-md p-6 rounded-t-3xl sm:rounded-3xl border-t border-white/10 shadow-2xl animate-slide-up relative overflow-hidden">
+          <div className="add-transaction-modal bg-gradient-to-b from-tg-card to-tg-secondary w-full max-w-md p-6 rounded-t-3xl sm:rounded-3xl border-t border-white/10 shadow-2xl animate-slide-up relative overflow-hidden">
             {/* Background decoration */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-tg-accent/5 blur-3xl rounded-full pointer-events-none"></div>
             
@@ -548,7 +575,7 @@ const App: React.FC = () => {
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
                       placeholder="0"
-                      className="w-full bg-tg-bg/70 text-4xl font-bold text-tg-text p-5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-tg-accent/50 placeholder-tg-muted/60 transition-all duration-300 group-focus-within:ring-tg-accent min-h-16"
+                      className="w-full bg-tg-card text-4xl font-bold text-tg-text p-5 rounded-2xl focus:outline-none focus:ring-2 focus:ring-tg-accent/50 placeholder:text-tg-muted placeholder:opacity-90 transition-all duration-300 group-focus-within:ring-tg-accent min-h-16"
                       autoFocus
                       inputMode="decimal"
                     />
@@ -583,7 +610,7 @@ const App: React.FC = () => {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Например: Ужин в ресторане"
-                    className="w-full bg-tg-bg/70 text-tg-text p-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-tg-accent/50 placeholder-tg-muted/60 transition-all duration-300 group-focus-within:ring-tg-accent text-base min-h-14"
+                      className="w-full bg-tg-card text-tg-text p-4 rounded-2xl focus:outline-none focus:ring-2 focus:ring-tg-accent/50 placeholder:text-tg-muted placeholder:opacity-90 transition-all duration-300 group-focus-within:ring-tg-accent text-base min-h-14"
                   />
                 </div>
 
