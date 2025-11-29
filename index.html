@@ -9,6 +9,28 @@
 
     <!-- Telegram Web App -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+<!-- Tailwind Play CDN -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    theme: {
+      extend: {
+        colors: {
+          tg: {
+            bg: 'var(--tg-bg)',
+            card: 'var(--tg-card)',
+            secondary: 'var(--tg-secondary)',
+            text: 'var(--tg-text)',
+            muted: 'var(--tg-muted)',
+            accent: 'var(--tg-accent)',
+            gold: 'var(--tg-gold)'
+          }
+        }
+      }
+    }
+  }
+</script>
 
     <style>
       :root {
