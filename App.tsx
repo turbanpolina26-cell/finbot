@@ -179,6 +179,7 @@ const App: React.FC = () => {
     localStorage.removeItem('nura_user');
   };
   
+
   const handleAddTransaction = async () => {
     if (!amount || !currentUser) return;
     
@@ -192,34 +193,57 @@ const App: React.FC = () => {
       authorId: currentUser.id
     };
 
-    setIsSyncing(true);
-    await addTransactionToDb(newTransaction);
-    // Wait a sec for realtime or reload manually if needed
-    setTimeout(() => setIsSyncing(false), 500);
+    try {
+      setIsSyncing(true);
+      await addTransactionToDb(newTransaction);
+      // Wait a sec for realtime or reload manually if needed
+      setTimeout(() => setIsSyncing(false), 500);
 
-    setIsAddModalOpen(false);
-    setAmount('');
-    setTitle('');
+      setIsAddModalOpen(false);
+      setAmount('');
+      setTitle('');
+    } catch (error) {
+      console.error('Error adding transaction:', error);
+      setIsSyncing(false);
+      alert('Error adding transaction. Please try again.');
+    }
   };
 
   const handleAddSavingsAccount = async (account: SavingsAccount) => {
-    setIsSyncing(true);
-    await addSavingToDb(account);
-    setTimeout(() => setIsSyncing(false), 500);
+    try {
+      setIsSyncing(true);
+      await addSavingToDb(account);
+      setTimeout(() => setIsSyncing(false), 500);
+    } catch (error) {
+      console.error('Error adding savings account:', error);
+      setIsSyncing(false);
+      alert('Error adding savings account. Please try again.');
+    }
   };
 
   const handleDeleteTransaction = async (id: string) => {
-    setIsSyncing(true);
-    await deleteTransactionFromDb(id);
-    setTimeout(() => setIsSyncing(false), 500);
+    try {
+      setIsSyncing(true);
+      await deleteTransactionFromDb(id);
+      setTimeout(() => setIsSyncing(false), 500);
+    } catch (error) {
+      console.error('Error deleting transaction:', error);
+      setIsSyncing(false);
+      alert('Error deleting transaction. Please try again.');
+    }
   };
 
   const handleDeleteSavingsAccount = async (id: string) => {
-    setIsSyncing(true);
-    await deleteSavingFromDb(id);
-    setTimeout(() => setIsSyncing(false), 500);
+    try {
+      setIsSyncing(true);
+      await deleteSavingFromDb(id);
+      setTimeout(() => setIsSyncing(false), 500);
+    } catch (error) {
+      console.error('Error deleting savings account:', error);
+      setIsSyncing(false);
+      alert('Error deleting savings account. Please try again.');
+    }
   };
-
   // --- Calculated Values ---
   const totalBalance = transactions.reduce((acc, t) => 
     t.type === TransactionType.INCOME ? acc + t.amount : acc - t.amount, 0
@@ -267,7 +291,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-tg-bg text-tg-text pb-28 font-sans selection:bg-tg-accent selection:text-white transition-colors duration-300">
       {/* Premium Header */}
-      <header className="sticky top-0 z-20 glass-high border-b border-white/5 px-5 py-4 flex justify-between items-center transition-all duration-300 backdrop-blur-xl">
+      <header className="fixed top-0 left-0 right-0 z-20 glass-high border-b border-white/5 px-5 py-4 flex justify-between items-center transition-all duration-300 backdrop-blur-xl">
         <div className="flex items-center gap-3">
           <div className="relative">
             <h1 className="font-bold text-2xl tracking-tight text-tg-text">Nura</h1>
@@ -321,7 +345,7 @@ const App: React.FC = () => {
         </div>
       </header>
 
-      <main className="p-5 max-w-lg mx-auto pb-32">{/*увеличил pb для навигации*/}
+      <main className="pt-20 px-5 max-w-lg mx-auto pb-32">
         {activeTab === 'home' && (
           <div className="space-y-6 animate-fade-in">
             {/* Premium Balance Card */}
