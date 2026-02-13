@@ -1,4 +1,4 @@
-name = "finbot-proxy-worker"
+name = "fin"
 compatibility_date = "2025-11-28"
 main = "cloudflare/worker.js"
 account_id = "6aa7ec2f92e7bd60c0be90113cb2e6ca"
